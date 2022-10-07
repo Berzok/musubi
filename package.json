@@ -11,15 +11,23 @@
     "tauri dev": "tauri dev"
   },
   "dependencies": {
-    "vue": "^3.2.37",
-    "@tauri-apps/api": "^1.1.0"
+    "@tauri-apps/api": "^1.1.0",
+    "axios": "^1.0.0",
+    "pinia": "^2.0.22",
+    "tabulator-tables": "^5.4.0",
+    "vue": "^3.2.40",
+    "vue-axios": "^3.4.1",
+    "vue-i18n": "^9.2.2",
+    "vue-router": "^4.1.5",
+    "vue-toast-notification": "^3.0.0"
   },
   "devDependencies": {
-    "@types/node": "^18.7.10",
-    "@vitejs/plugin-vue": "^3.0.1",
-    "typescript": "^4.6.4",
-    "vite": "^3.0.2",
-    "vue-tsc": "^0.40.0",
-    "@tauri-apps/cli": "^1.1.0"
+    "@intlify/vite-plugin-vue-i18n": "^6.0.3",
+    "@tauri-apps/cli": "^1.1.1",
+    "@types/node": "^18.8.2",
+    "@vitejs/plugin-vue": "^3.1.2",
+    "typescript": "^4.8.4",
+    "vite": "^3.1.6",
+    "vue-tsc": "^0.40.13"
   }
 }
