@@ -46,12 +46,19 @@ const routes: Array<RouteRecordRaw> = [
     },
 ];
 
+routes.forEach((value => {
+    value.meta = {
+        transition: 'fade'
+    }
+}));
+
 const router = createRouter({
     history: createWebHistory('/'),
     routes,
 });
 router.beforeEach((to, from, next) => {
     const main = useStore();
+    return next();
 
     // by defining in by negation (to.meta.requiresAuth !== false) every page wich is not explicitly
     // defining to be without authentication needs to be authentication (security concerns)
