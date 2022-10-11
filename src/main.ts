@@ -4,14 +4,19 @@ import router from '@/router';
 import i18n from './utils/i18n';
 import VueAxios from 'vue-axios';
 import VueToast from 'vue-toast-notification';
+import PrimeVue from 'primevue/config';
 import { createPinia } from 'pinia';
+
 import configureHTTPInterceptor from './config/configureHTTPInterceptor';
 import App from "./App.vue";
 
 // Import one of the available themes
 //import 'vue-toast-notification/dist/theme-default.css';
 import 'vue-toast-notification/dist/theme-sugar.css';
-import "./style.css";
+import '@fortawesome/fontawesome-free/css/all.min.css';
+import 'bootstrap/dist/css/bootstrap-utilities.min.css';
+import "@/style.css";
+
 
 const pinia = createPinia();
 configureHTTPInterceptor();
@@ -22,4 +27,5 @@ createApp(App)
     .use(router)
     .use(pinia)
     .use(i18n)
+    .use(PrimeVue)
     .mount("#app");
