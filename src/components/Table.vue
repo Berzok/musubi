@@ -1,59 +1,82 @@
 <template>
-  <div ref="table"></div>
-<!--  <DataTable-->
+
+  <Dataview :data="tableData">
+    <template #header>
+      <div class="grid grid-nogutter">
+        <div class="col-12">
+          <Dropdown v-model="sortKey" :options="sortOptions" optionLabel="label" placeholder="Sort By Price"
+                    @change="onSortChange($event)"/>
+        </div>
+      </div>
+    </template>
+  </Dataview>
+
+  <div v-if="primevue">
+    <DataView :value="tableData" layout="grid" :paginator="true" :rows="9" :sortOrder="sortOrder"
+              :sortField="null">
+      <template #header>
+        <div class="grid grid-nogutter">
+          <div class="col-12" style="text-align: right">
+            <Dropdown v-model="sortKey" :options="sortOptions" optionLabel="label" placeholder="Sort By Price"
+                      @change="onSortChange($event)"/>
+          </div>
+        </div>
+      </template>
+
+      <template #grid="slotProps">
+        <div class="col-12 md:col-4">
+          <div class="card">
+            <img src="https://www.primefaces.org/wp-content/uploads/2020/05/placeholder.png"
+                 :alt="slotProps.data.name"/>
+            <span class="product-category">{{ slotProps.data.name }}</span>
+            <div>
+              <Button icon="pi pi-pencil"></Button>
+              <Button icon="pi pi-sync"></Button>
+            </div>
+          </div>
+        </div>
+      </template>
+    </DataView>
+  </div>
+
 </template>
 
 <script lang="ts">
-import { TabulatorFull as Tabulator, CellComponent, FormatterParams, EmptyCallback } from 'tabulator-tables';
 import "tabulator-tables/dist/css/tabulator_midnight.min.css";
 import { defineComponent } from "vue"; //import Tabulator library
 import json from '@/resources/json/table.json'
-import vue from '../assets/vue.svg';
-import { RowComponent } from 'tabulator-tables';
-import { dialogService } from '@/services/dialogService';
-
+import addItem from "@/components/utils/Dataview.vue";
+import DataView from 'primevue/dataview';
+import Dropdown from 'primevue/dropdown';
+import Button from 'primevue/button';
+import Dataview from "@/components/utils/Dataview.vue";
 
 export default defineComponent({
     name: "Table",
+    components: {
+        Dataview,
+        DataView,
+        Dropdown,
+        Button
+    },
     data() {
         return {
-            tabulator: Tabulator, //variable to hold your table
             tableData: json,
-            tableColumns: [
-                {
-                    title: "Logo",
-                    field: "picture",
-                    formatter: function (cell: CellComponent, formatterParams: FormatterParams, onRendered: EmptyCallback) {
-                        let img = document.createElement('img');
-                        img.src = cell.getValue() > 0 ? cell.getValue : vue;
-                        img.className = 'img-fluid';
-                        return img.outerHTML;
-                    },
-                    widthGrow: 1,
-                    variableHeight: true
-                },
-                {title: "Name", field: "name", hozAlign: "left", widthGrow: 2},
-                {title: "Tracked", field: "tracked", hozAlign: "center", formatter: "tickCross"},
-                {title: "Synchronised", field: "synchronised", hozAlign: "center", formatter: "tickCross"},
-            ]
+            addDialog: false,
+            primevue: false
         }
     },
-    mounted() {
-        //instantiate Tabulator when element is mounted
-        this.tabulator = new Tabulator(this.$refs.table, {
-            data: this.tableData, //link data to table
-            reactiveData: true, //enable data reactivity
-            columns: this.tableColumns, //define table columns,
-            layout: "fitColumns"
-        });
-
-        this.tabulator.on("rowClick", function(e: Event, row: RowComponent){
-            //e - the click event object
-            //row - row component
-            console.dir(e);
-            dialogService.selectDirectory();
-        });
-    }
+    methods: {
+        addItem() {
+            this.$dialog.open(addItem, {
+                props: {
+                    header: 'Add an item',
+                    modal: true
+                }
+            });
+        }
+    },
+    mounted() {}
 })
 </script>
 

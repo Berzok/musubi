@@ -5,6 +5,7 @@ import i18n from './utils/i18n';
 import VueAxios from 'vue-axios';
 import VueToast from 'vue-toast-notification';
 import PrimeVue from 'primevue/config';
+import DialogService from 'primevue/dialogservice';
 import { createPinia } from 'pinia';
 
 import configureHTTPInterceptor from './config/configureHTTPInterceptor';
@@ -15,6 +16,8 @@ import App from "./App.vue";
 import 'vue-toast-notification/dist/theme-sugar.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import 'bootstrap/dist/css/bootstrap-utilities.min.css';
+import 'primeflex/primeflex.css';
+import 'primeicons/primeicons.css';
 import "@/style.css";
 
 
@@ -28,4 +31,5 @@ createApp(App)
     .use(pinia)
     .use(i18n)
     .use(PrimeVue)
+    .use(DialogService)
     .mount("#app");

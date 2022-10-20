@@ -1,18 +1,18 @@
 <template>
-    <Transition name="slide-fade">
-      <div id="sidebar" v-if="this.visible" :class="this.activeClass()">
-        <div class="navbar-header">
-          <button class="btn" @click="hide" type="button">
-            <span class="fa-solid fa-times"/>
-          </button>
-        </div>
-        <ul>
-          <li v-for="i in this.menuItems" :key="i.name">
-            {{ i.name }}
-          </li>
-        </ul>
+  <Transition name="slide-fade">
+    <div id="sidebar" v-if="visible" :class="activeClass()">
+      <div class="navbar-header">
+        <button class="btn" @click="hide" type="button">
+          <span class="fa-solid fa-times"/>
+        </button>
       </div>
-    </Transition>
+      <ul>
+        <li v-for="i in menuItems" :key="i.name">
+          {{ i.name }}
+        </li>
+      </ul>
+    </div>
+  </Transition>
   <button v-show="!visible" id="navbar_toggle" @click="visible = !visible" class="btn">
     <span :class="buttonIcon()"></span>
   </button>
