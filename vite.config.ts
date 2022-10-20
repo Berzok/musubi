@@ -6,15 +6,7 @@ import path from 'path';
 console.dir(path.resolve(__dirname, './src/locales/**'));
 // https://vitejs.dev/config/
 export default defineConfig({
-    plugins: [
-        vue(),
-        vueI18n({
-            // if you want to use Vue I18n Legacy API, you need to set `compositionOnly: false`
-            compositionOnly: true,
-            include: path.resolve(__dirname, './src/locales/**'),
-            defaultSFCLang: "json"
-        })
-    ],
+    assetsInclude: ['**/*.png'],
 
     // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
     // prevent vite from obscuring rust errors
@@ -44,4 +36,23 @@ export default defineConfig({
         },
         extensions: ['.vue', '.js', '.scss', '.css', '.ts']
     },
+    // css: {
+    //     preprocessorOptions: {
+    //         scss: {
+    //             additionalData: `
+    //           @import "bootstrap/scss/_variables.scss";
+    //           @import "bootstrap/scss/_card.scss";
+    //         `
+    //         }
+    //     }
+    // },
+    plugins: [
+        vue(),
+        vueI18n({
+            // if you want to use Vue I18n Legacy API, you need to set `compositionOnly: false`
+            compositionOnly: true,
+            include: path.resolve(__dirname, './src/locales/**'),
+            defaultSFCLang: "json"
+        })
+    ],
 });
