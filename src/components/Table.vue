@@ -3,10 +3,7 @@
   <Dataview :data="tableData">
     <template #header>
       <div class="grid grid-nogutter">
-        <div class="col-12">
-          <Dropdown v-model="sortKey" :options="sortOptions" optionLabel="label" placeholder="Sort By Price"
-                    @change="onSortChange($event)"/>
-        </div>
+
       </div>
     </template>
   </Dataview>
