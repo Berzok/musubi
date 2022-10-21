@@ -20,7 +20,6 @@ import 'primeflex/primeflex.css';
 import 'primeicons/primeicons.css';
 import "@/style.css";
 
-
 const pinia = createPinia();
 configureHTTPInterceptor();
 

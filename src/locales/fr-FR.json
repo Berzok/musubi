@@ -1,18 +1,25 @@
 {
     "authenticate": {
-        "login": "connexion",
-        "register": "enregistrement",
+        "login": "Connexion",
+        "register": "Enregistrement",
         "sucessMessage": "bienvenue",
         "failMessage": "erreur: identifiant ou mot de passe incorect"
     },
     "login": {
-        "login": "identifiant",
-        "password": "mot de passe"
+        "login": "Identifiant",
+        "password": "Mot de passe"
     },
     "register": {
-        "lastName": "nom de famille",
-        "firstName": "prenom",
-        "login": "identifiant",
-        "password": "mot de passe"
-    }
+        "lastName": "Nom de famille",
+        "firstName": "Prenom",
+        "login": "Identifiant",
+        "password": "Mot de passe"
+    },
+    "form": {
+        "search": "Recherche",
+        "sortBy": "Trier par"
+    },
+    "name": "Nom",
+    "date": "Date",
+    "cancel": "Annuler"
 }
