@@ -1,13 +1,14 @@
 <template>
-  <div>
-    <div v-if="$slots.header" class="p-dataview-header">
-      <slot name="header"></slot>
-    </div>
-
+  <div class="view-container">
     <div class="view-header">
       <div class="col-3">
         <label for="search" class="form-label">{{ this.$t('form.search') }}</label>
-        <input id="search" v-model="this.searchTerm" @input="this.search()" type="text" class="form-control">
+        <div class="d-flex">
+          <input id="search" v-model="this.searchTerm" @input="this.search()" type="text" class="form-control">
+          <button @click="this.resetSearch()" class="btn btn-secondary">
+            <span class="fa-solid fa-xmark"></span>
+          </button>
+        </div>
       </div>
       <div class="col-2">
         <label for="sort" class="form-label">{{ this.$t('form.sortBy') }}</label>
@@ -26,7 +27,7 @@
 
     <div class="view-table">
       <template v-for="i in items" :key="i">
-        <div class="view-item" :class="colClass">
+        <div class="view-item">
           <div class="card">
             <img :src="i.picture" class="card-img-top cell-image" :alt="i.name">
             <h4 class="card-title">{{ i.name }}</h4>
@@ -34,53 +35,52 @@
         </div>
       </template>
 
-      <div v-show="!(this.sortField || this.searchTerm)" class="view-item" :class="colClass">
+      <div v-show="!(this.sortField || this.searchTerm) && this.freeSpace" class="view-item">
         <div class="card">
-          <img src="" class="card-img-top cell-image" alt="placeholder">
+          <span class="fa-solid fa-plus"></span>
+          <img :src="this.plusSign" class="card-img-top cell-image" alt="placeholder">
           <h4 class="card-title">ajouter</h4>
         </div>
       </div>
-
     </div>
 
-    <nav aria-label="Item navigation">
-      <ul class="pagination">
-        <template v-for="p in pages" :key="p">
-          <li>{{ p.label }}</li>
-        </template>
-      </ul>
+    <nav class="view-pagination" aria-label="Item navigation">
+      <button @click="this.previousPage()" class="page-item">
+        <span class="fa-solid fa-angles-left"></span>
+      </button>
+      <template v-for="p in pages" :key="p">
+        <button class="page-item" @click="loadPage(p)" :class="{active: p === currentPage}">{{ p }}</button>
+      </template>
+      <button @click="this.nextPage()" class="page-item">
+        <span class="fa-solid fa-angles-right"></span>
+      </button>
     </nav>
-
-  </div>
-
-  <div v-if="$slots.footer" class="p-dataview-footer">
-    <slot name="footer"></slot>
   </div>
 
 </template>
 
 <script>
 import { ObjectUtils } from 'primevue/utils';
-import Dropdown from 'primevue/dropdown';
 import yarn from '@/assets/yarn.png';
+import plus from '@/assets/plus_sign.png';
 import { defineComponent } from "vue";
-import DataView from "primevue/dataview";
-import Button from "primevue/button";
 
 export default defineComponent({
     name: 'Dataview',
-    components: {
-        Dropdown
-    },
-    emits: ['update:first', 'update:rows', 'page'],
+    components: {},
+    emits: ['update:first', 'page'],
     props: {
         data: {
             type: Array,
             default: null
         },
-        rows: {
-            type: Number,
-            default: 0
+        /**
+         * Define if we do an infinite scrolling or old school pagination
+         * @values pagination | scroll
+         */
+        mode: {
+            type: String,
+            default: 'pagination'
         },
         first: {
             type: Number,
@@ -90,29 +90,13 @@ export default defineComponent({
             type: Number,
             default: 0
         },
-        paginator: {
-            type: Boolean,
-            default: false
-        },
-        rowsPerPageOptions: {
-            type: Array,
+        rowsPerPage: {
+            type: Number,
             default: null
         },
         rowSize: {
             type: Number,
             default: 4
-        },
-        sortOrder: {
-            type: Number,
-            default: null
-        },
-        lazy: {
-            type: Boolean,
-            default: false
-        },
-        dataKey: {
-            type: String,
-            default: null
         }
     },
     data() {
@@ -120,7 +104,7 @@ export default defineComponent({
             d_first: this.first,
             d_rows: this.rows,
             currentPage: 0,
-            pages: [],
+            pages: [0],
             searchTerm: null,
             sortField: null,
             sortOptions: [
@@ -139,9 +123,6 @@ export default defineComponent({
         first(newValue) {
             this.d_first = newValue;
         },
-        rows(newValue) {
-            this.d_rows = newValue;
-        },
         sortField() {
             this.resetPage();
         },
@@ -150,25 +131,32 @@ export default defineComponent({
         }
     },
     mounted() {
+        let index = 1;
         this.data.forEach((v, k) => {
             v.picture = v.picture.length > 0 ? new URL('/src/assets/' + v.picture, import.meta.url) : yarn;
+            index++;
+            //this.pages[this.pages.length-1]
+            if (index >= (this.rowSize * this.rowsPerPage)) {
+                this.pages.push(Math.min(...this.pages) + 1);
+                index = 1;
+            }
         });
-        console.dir(Boolean(this.sortField) || Boolean(this.searchTerm));
     },
     methods: {
-        getKey(item, index) {
-            return this.dataKey ? ObjectUtils.resolveFieldData(item, this.dataKey) : index;
+        previousPage() {
+            this.loadPage(this.currentPage - 1);
+        },
+        nextPage() {
+            this.loadPage(this.currentPage + 1);
         },
         loadPage(index) {
+            if (index > this.pages[this.pages.length - 1] || index < 0) {
+                return false;
+            }
             this.currentPage = index;
-        },
-        onPage(event) {
-            this.d_first = event.first;
-            this.d_rows = event.rows;
+            this.d_first = (this.rowSize * this.rowsPerPage) * index;
 
             this.$emit('update:first', this.d_first);
-            this.$emit('update:rows', this.d_rows);
-            this.$emit('page', event);
         },
         search() {
             if (this.data) {
@@ -234,38 +222,41 @@ export default defineComponent({
             this.d_first = 0;
             this.$emit('update:first', this.d_first);
         },
+        resetSearch() {
+            this.searchTerm = null;
+        },
         resetSort() {
             this.sortField = null;
         }
     },
     computed: {
-        rowsCount() {
-            const c = this.getTotalRecords / this.rowSize;
-            console.dir(c);
-            return c;
+        freeSpace() {
+            return this.items.length < this.rowSize * this.rowsPerPage;
         },
-        colClass() {
-            return 'w-20';
+        plusSign() {
+            return plus;
         },
-        getTotalRecords() {
-            if (this.totalRecords) return this.totalRecords;
-            else return this.data ? this.data.length : 0;
+        pagination() {
+            return this.mode === 'pagination';
         },
-        empty() {
-            return !this.data || this.data.length === 0;
+        infinite() {
+            return this.mode === 'infinite';
         },
         items() {
             if (this.data && this.data.length) {
                 let data = this.data;
 
                 if (data && data.length) {
-                    if(this.searchTerm){
+                    if (this.searchTerm) {
                         data = this.search();
+                    }
+                    if (this.pagination) {
+                        const first = this.d_first > 0 ? this.d_first : 0;
+                        data = data.slice(first, first + this.rowSize * this.rowsPerPage);
                     }
                     if (this.sortField) {
                         data = this.sort();
                     }
-                    console.dir(data);
                 }
 
                 return data;
@@ -281,6 +272,15 @@ export default defineComponent({
 <style scoped lang="scss">
 @import 'bootstrap/dist/css/bootstrap.min.css';
 
+.view-container {
+  margin-bottom: 1rem;
+}
+
+.view-pagination {
+  display: flex;
+  justify-content: center;
+}
+
 .view-header {
   display: flex;
   justify-content: space-between;
@@ -295,10 +295,16 @@ export default defineComponent({
 }
 
 .view-table {
-  display: flex;
+  display: grid;
+  grid-template-columns: 20% 20% 20% 20%;
   text-align: center;
   flex-wrap: wrap;
   justify-content: space-between;
+}
+
+.view-table::after {
+  content: "";
+  flex: auto;
 }
 
 .view-item {
@@ -344,8 +350,12 @@ export default defineComponent({
   -webkit-text-stroke: 1px #5d5d5d;
 }
 
-.w-20 {
-  width: 20%;
-  flex: 0 0 auto;
+.page-item {
+  border-radius: 3px;
 }
+
+.active {
+  background-color: gray;
+}
+
 </style>

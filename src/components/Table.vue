@@ -1,11 +1,6 @@
 <template>
 
-  <Dataview :data="tableData">
-    <template #header>
-      <div class="grid grid-nogutter">
-
-      </div>
-    </template>
+  <Dataview :data="tableData" :rowSize="4" :rowsPerPage="2">
   </Dataview>
 
   <div v-if="primevue">
