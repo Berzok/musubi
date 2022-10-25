@@ -38,7 +38,8 @@ export default defineComponent({
                     name: 'Ipsum',
                 },
                 {
-                    name: 'Chocolatl'
+                    name: 'Chocolatl',
+                    icon: 'gears'
                 }
             ],
             visible: false
