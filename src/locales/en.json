@@ -17,9 +17,12 @@
     },
     "form": {
         "search": "Recherche",
-        "sortBy": "Trier par"
+        "sortBy": "Trier par",
+        "submit": "Enregistrer"
     },
     "name": "Nom",
     "date": "Date",
+    "tracked": "Suivi",
+    "synchronised": "Synchronisé",
     "cancel": "Annuler"
 }

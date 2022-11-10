@@ -5,7 +5,7 @@
     font-size: 16px;
     line-height: 24px;
     font-weight: 400;
-    color: #0f0f0f;
+    color: grey;
     scrollbar-color: goldenrod #3c0f6c;
     scrollbar-width: thin;
 
@@ -16,23 +16,24 @@
     -webkit-text-size-adjust: 100%;
 }
 
-body{
+body {
     margin: 0;
 }
 
 #app {
     display: flex;
+    height: 100vh;
 }
 
 .container {
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    margin-top: 2rem;
     margin-left: auto;
     margin-right: auto;
+    min-height: 85vh;
     width: 85%;
     min-width: 45rem;
-
     z-index: 0;
 }
 
@@ -87,8 +88,7 @@ button {
     outline: none;
 }
 
-.img-fluid{
+.img-fluid {
     height: auto;
     max-width: 100%;
-    width: 6em;
 }

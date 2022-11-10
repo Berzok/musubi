@@ -1,14 +1,15 @@
 [
     {
-        "_id": "63452764b435ce04a3c414a1",
+        "id": "63452764b435ce04a3c414a1",
         "picture": "katawa_shoujo.png",
         "name": "Katawa Shoujo",
         "about": "Consectetur sint anim magna elit sunt est velit tempor labore minim incididunt nisi ullamco nisi. Esse ullamco dolore aute deserunt reprehenderit eiusmod qui. Nulla sit incididunt magna cillum id et nostrud fugiat ipsum est do. Laboris nulla amet ex nisi exercitation cupidatat aliqua sint consectetur ea.\r\n",
+        "path": "C:\\Users\\u.friedrich\\Pictures\\pf",
         "tracked": "yuzu",
         "synchronised": "no"
     },
     {
-        "_id": "634527645f0570cf694e1eb5",
+        "id": "634527645f0570cf694e1eb5",
         "picture": "tauri.svg",
         "name": "Fate/Stay Night",
         "about": "Exercitation elit excepteur aute id proident dolor eiusmod occaecat tempor. Laboris duis qui enim dolore. Est do laboris adipisicing fugiat dolor et. Anim incididunt officia incididunt nostrud aute esse non ipsum qui amet fugiat reprehenderit cillum mollit. Nulla consequat sunt fugiat laboris labore reprehenderit aliqua proident officia minim ex tempor incididunt. Enim do excepteur et ea eu Lorem aute.\r\n",
@@ -16,7 +17,7 @@
         "synchronised": "yes"
     },
     {
-        "_id": "6345276492a8a2ef0446129d",
+        "id": "6345276492a8a2ef0446129d",
         "picture": "kanon.png",
         "name": "Kanon",
         "about": "Minim Lorem eu aliqua sit voluptate tempor id ut adipisicing non dolor qui eu officia. Ut officia magna magna proident labore esse amet proident. Do sint nisi fugiat nostrud et duis. Dolore reprehenderit dolore irure magna incididunt amet eiusmod sit.\r\n",
@@ -24,7 +25,7 @@
         "synchronised": "yes"
     },
     {
-        "_id": "634527640d9eb0c19d50b930",
+        "id": "634527640d9eb0c19d50b930",
         "picture": "saya_no_uta.png",
         "name": "Saya no Uta",
         "about": "Eiusmod commodo ex sunt occaecat minim esse sint duis. Eiusmod adipisicing dolore excepteur proident quis aute. Occaecat mollit tempor ullamco nisi sint ullamco Lorem. Voluptate proident est aute dolore proident cupidatat consectetur sint culpa commodo veniam dolor. Eiusmod veniam magna esse ullamco amet est occaecat dolor laboris irure mollit. Ipsum dolore reprehenderit duis nulla occaecat tempor velit consequat voluptate. Aliqua et amet mollit dolor.\r\n",
@@ -32,7 +33,7 @@
         "synchronised": "no"
     },
     {
-        "_id": "6345276431b818d31b3a8ea7",
+        "id": "6345276431b818d31b3a8ea7",
         "picture": "air.png",
         "name": "Air",
         "about": "Elit aliqua incididunt elit dolore mollit elit Lorem ullamco. Consequat minim est aliqua veniam aliqua velit.Eiusmod dolore culpa elit exercitation incididunt nisi laboris in dolore fugiat culpa adipisicing eiusmod. Ea Lorem Lorem ipsum adipisicing sunt irure.\r\n",
@@ -40,7 +41,7 @@
         "synchronised": "yes"
     },
     {
-        "_id": "6345276431b818d31b3a8ea7",
+        "id": "6345276431b818d31b3a8ea7",
         "picture": "summer_pockets.png",
         "name": "Summer pockets",
         "about": "Elit aliqua incididunt elit dolore mollit elit Lorem ullamco. Consequat minim est aliqua veniam aliqua velit.Eiusmod dolore culpa elit exercitation incididunt nisi laboris in dolore fugiat culpa adipisicing eiusmod. Ea Lorem Lorem ipsum adipisicing sunt irure.\r\n",
@@ -48,7 +49,7 @@
         "synchronised": "yes"
     },
     {
-        "_id": "6345276431b818d31b3a8ea7",
+        "id": "6345276431b818d31b3a8ea7",
         "picture": "vite.svg",
         "name": "Vite",
         "about": "Elit aliqua incididunt elit dolore mollit elit Lorem ullamco. Consequat minim est aliqua veniam aliqua velit.Eiusmod dolore culpa elit exercitation incididunt nisi laboris in dolore fugiat culpa adipisicing eiusmod. Ea Lorem Lorem ipsum adipisicing sunt irure.\r\n",
@@ -56,7 +57,7 @@
         "synchronised": "yes"
     },
     {
-        "_id": "6345276431b818d31b3a8ea7",
+        "id": "6345276431b818d31b3a8ea7",
         "picture": "fate_staynight.png",
         "name": "Fate",
         "about": "Elit aliqua incididunt elit dolore mollit elit Lorem ullamco. Consequat minim est aliqua veniam aliqua velit.Eiusmod dolore culpa elit exercitation incididunt nisi laboris in dolore fugiat culpa adipisicing eiusmod. Ea Lorem Lorem ipsum adipisicing sunt irure.\r\n",
@@ -64,7 +65,7 @@
         "synchronised": "yes"
     },
     {
-        "_id": "6345276431b818d31b3a8ea7",
+        "id": "6345276431b818d31b3a8ea7",
         "picture": "vue.svg",
         "name": "Vue",
         "about": "Elit aliqua incididunt elit dolore mollit elit Lorem ullamco. Consequat minim est aliqua veniam aliqua velit.Eiusmod dolore culpa elit exercitation incididunt nisi laboris in dolore fugiat culpa adipisicing eiusmod. Ea Lorem Lorem ipsum adipisicing sunt irure.\r\n",

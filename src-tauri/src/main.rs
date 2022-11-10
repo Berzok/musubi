@@ -1,10 +1,14 @@
 #![cfg_attr(
-    all(not(debug_assertions), target_os = "windows"),
-    windows_subsystem = "windows"
+all(not(debug_assertions), target_os = "windows"),
+windows_subsystem = "windows"
 )]
 
-mod utils;
 use tauri::{CustomMenuItem, Menu, MenuItem, Submenu};
+use utils::filesystem::*;
+use utils::http::connect_to_ip;
+
+mod utils;
+//use utils;
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
@@ -12,9 +16,9 @@ fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
 }
 
-fn main() {
+pub fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![greet])
+        .invoke_handler(tauri::generate_handler![greet, connect_to_ip, is_directory, directory_content])
         .menu(init_menu())
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

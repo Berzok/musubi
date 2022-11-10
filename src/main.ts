@@ -24,7 +24,9 @@ const pinia = createPinia();
 configureHTTPInterceptor();
 
 createApp(App)
-    .use(VueToast)
+    .use(VueToast, {
+        position: 'top-right'
+    })
     .use(VueAxios, axios)
     .use(router)
     .use(pinia)

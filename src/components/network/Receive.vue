@@ -9,7 +9,7 @@ import json from '@/resources/json/table.json'
 import Dataview from "@/components/utils/Dataview.vue";
 
 export default defineComponent({
-    name: "Table",
+    name: "Receive",
     components: {
         Dataview
     },

@@ -1,11 +1,13 @@
 import Axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { useToast } from 'vue-toast-notification';
 import router from '@/router/index';
+import { useStore } from '@/store/user';
 // import { loadStore } from '@/store/modules/loading';
 // import { ActionTypes as loadingActionTypes } from '@/store/modules/loading/actions';
 
 function configure(configuration: AxiosRequestConfig) {
     // TODO add an option to disable by default loading
+    useStore().loading = true;
     //loadStore().dispatch(loadingActionTypes.beginLoading, undefined);
     const conf = configuration;
     conf.timeout = 180000;
@@ -13,6 +15,7 @@ function configure(configuration: AxiosRequestConfig) {
 }
 
 function requestErrorHandler(error: any) {
+    useStore().loading = false;
     //loadStore().dispatch(loadingActionTypes.endLoading, undefined);
     useToast().error('Invalid request');
     return Promise.reject(error);

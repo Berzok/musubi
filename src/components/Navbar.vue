@@ -1,18 +1,32 @@
 <template>
   <Transition name="slide-fade">
+
     <div id="sidebar" v-if="visible" :class="activeClass()">
       <div class="navbar-header">
         <button class="btn" @click="hide" type="button">
           <span class="fa-solid fa-times"/>
         </button>
       </div>
-      <ul>
-        <li v-for="i in menuItems" :key="i.name">
-          {{ i.name }}
-        </li>
-      </ul>
+
+      <div class="ms-4">
+        <router-link :to="{name: 'Home'}" id="link-to-login">
+          <h3>
+            <span class="fa-solid fa-home"></span>
+            {{ $t('menu.home') }}
+          </h3>
+        </router-link>
+        <router-link :to="{name: 'authenticate'}" id="link-to-login">
+          <h3>
+            <span class="fa-solid fa-link"></span>
+            {{ $t('menu.network') }}
+          </h3>
+        </router-link>
+      </div>
+
     </div>
+
   </Transition>
+
   <button v-show="!visible" id="navbar_toggle" @click="visible = !visible" class="btn">
     <span :class="buttonIcon()"></span>
   </button>
@@ -30,18 +44,6 @@ export default defineComponent({
     computed: {},
     data() {
         return {
-            menuItems: [
-                {
-                    name: 'Lorem'
-                },
-                {
-                    name: 'Ipsum',
-                },
-                {
-                    name: 'Chocolatl',
-                    icon: 'gears'
-                }
-            ],
             visible: false
         }
     },
@@ -60,19 +62,19 @@ export default defineComponent({
         const user = userStore();
         //const isLoggedIn = computed(() => store.getters.isLogged);
         return {user};
-    },
+    }
 });
 </script>
 
 <style scoped>
 #sidebar {
-    background-color: darkslateblue;
+    background-color: #2f3850;
     border-right: 1px dashed goldenrod;
     color: thistle;
     max-width: 20rem;
     height: 100%;
     font-family: "Lato", Helvetica, "Roboto", Arial, sans-serif;
-    transition: all 1s;
+    transition: all 0.4s;
     min-width: 11rem;
     position: fixed;
     width: auto;
@@ -98,7 +100,7 @@ export default defineComponent({
   durations and timing functions.
 */
 .slide-fade-enter-active, .slide-fade-leave-active {
-    transition: all 1s ease-out;
+    transition: all 0.4s ease-out;
 }
 
 .slide-fade-enter-from,
