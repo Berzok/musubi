@@ -12,7 +12,20 @@
     },
     "tauri": {
         "allowlist": {
-            "all": true
+            "dialog": {
+                "open": true
+            },
+            "fs": {
+                "createDir": true,
+                "exists": true,
+                "readDir": true,
+                "writeFile": true,
+                "readFile": true,
+                "scope": ["$APPDATA/*"]
+            },
+            "path": {
+                "all": true
+            }
         },
         "bundle": {
             "active": true,
@@ -29,7 +42,7 @@
                 "icons/icon.icns",
                 "icons/icon.ico"
             ],
-            "identifier": "com.musubi.app",
+            "identifier": "musubi",
             "longDescription": "",
             "macOS": {
                 "entitlements": null,

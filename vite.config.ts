@@ -11,11 +11,14 @@ export default defineConfig({
     // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
     // prevent vite from obscuring rust errors
     clearScreen: false,
+
     // tauri expects a fixed port, fail if that port is not available
     server: {
+        host: true,
         port: 1420,
         strictPort: true,
     },
+
     // to make use of `TAURI_DEBUG` and other env variables
     // https://tauri.studio/v1/api/config#buildconfig.beforedevcommand
     envPrefix: ["VITE_", "TAURI_"],
@@ -50,7 +53,7 @@ export default defineConfig({
         vue(),
         vueI18n({
             // if you want to use Vue I18n Legacy API, you need to set `compositionOnly: false`
-            compositionOnly: true,
+            compositionOnly: false,
             include: path.resolve(__dirname, './src/locales/**'),
             defaultSFCLang: "json"
         })

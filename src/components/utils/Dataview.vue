@@ -4,7 +4,7 @@
       <div class="col-3">
         <label for="search" class="form-label">{{ this.$t('form.search') }}</label>
         <div class="d-flex">
-          <input id="search" v-model="this.searchTerm" @input="this.search()" type="text" class="form-control">
+          <input id="search" v-model="this.searchTerm" @input="" type="text" class="form-control">
           <button @click="this.resetSearch()" class="btn btn-secondary">
             <span class="fa-solid fa-xmark"></span>
           </button>
@@ -13,7 +13,7 @@
       <div class="col-2">
         <label for="sort" class="form-label">{{ this.$t('form.sortBy') }}</label>
         <div class="d-flex">
-          <select id="sort" v-model="sortField" @change="this.sort()" class="form-select">
+          <select id="sort" v-model="sortField" class="form-select">
             <option v-for="o in this.sortOptions" :key="o" :value="o.value">
               {{ o.name }}
             </option>
@@ -27,12 +27,12 @@
 
     <div class="view-table">
       <template v-for="i in items" :key="i">
-        <div class="view-item">
+        <router-link :to="{name: 'item', params: {id: i.id}}" class="view-item">
           <div class="card">
             <img :src="i.picture" class="card-img-top cell-image" :alt="i.name">
             <h4 class="card-title">{{ i.name }}</h4>
           </div>
-        </div>
+        </router-link>
       </template>
 
       <div v-show="!(this.sortField || this.searchTerm) && this.freeSpace" class="view-item">
@@ -63,7 +63,7 @@
 import { ObjectUtils } from 'primevue/utils';
 import yarn from '@/assets/yarn.png';
 import plus from '@/assets/plus_sign.png';
-import { defineComponent } from "vue";
+import { defineComponent, toRaw } from "vue";
 
 export default defineComponent({
     name: 'Dataview',
@@ -109,11 +109,11 @@ export default defineComponent({
             sortField: null,
             sortOptions: [
                 {
-                    name: this.$t('name'),
+                    name: this.$t('item.name'),
                     value: 'name'
                 },
                 {
-                    name: this.$t('date'),
+                    name: this.$t('item.date'),
                     value: 'date'
                 }
             ]
@@ -124,11 +124,9 @@ export default defineComponent({
             this.d_first = newValue;
         },
         sortField() {
-            this.resetPage();
+            // console.dir(this.items);
+            //this.resetPage();
         },
-        sortOrder() {
-            this.resetPage();
-        }
     },
     mounted() {
         let index = 1;
@@ -166,57 +164,57 @@ export default defineComponent({
                 data.forEach((e, i, a) => {
                     if (e.name.toLowerCase().includes(this.searchTerm)) {
                         newData.push(e);
-                    } else {
-                        a.splice(i, 1);
                     }
                 });
 
                 return newData;
             }
         },
-        sort() {
+        sort(d = null) {
+            const data = (d) ? d : this.data;
             if (this.data) {
                 const data = [...this.data];
-
-                data.sort((data1, data2) => {
-                    let value1 = ObjectUtils.resolveFieldData(data1, this.sortField);
-                    let value2 = ObjectUtils.resolveFieldData(data2, this.sortField);
-                    let result = null;
-
-                    //If only value2 exists
-                    if (value1 == null && value2 != null) {
-                        result = -1;
-
-                        //If only value1 exists
-                    } else if (value1 != null && value2 == null) {
-                        result = 1;
-
-                        //Neither value exist
-                    } else if (value1 == null && value2 == null) {
-                        result = 0;
-
-                    } else if (typeof value1 === 'string' && typeof value2 === 'string') {
-                        result = value1.localeCompare(value2, undefined, {numeric: true});
-
-                    } else {
-                        result = value1 < value2 ? -1 : value1 > value2 ? 1 : 0;
-                    }
-
-                    if (result === -1) {
-                        console.dir(value1 + ' < ' + value2);
-                    } else if (result === 0) {
-                        console.dir(value1 + ' ==' + value2);
-                    } else if (result === 1) {
-                        console.dir(value1 + ' > ' + value2);
-                    }
-
-                    return result;
-                });
-
-                return data;
             } else {
+                console.dir('oui');
                 return null;
             }
+
+            data.sort((data1, data2) => {
+                let value1 = ObjectUtils.resolveFieldData(data1, this.sortField);
+                let value2 = ObjectUtils.resolveFieldData(data2, this.sortField);
+                let result = null;
+
+                //If only value2 exists
+                if (value1 == null && value2 != null) {
+                    result = -1;
+
+                    //If only value1 exists
+                } else if (value1 != null && value2 == null) {
+                    result = 1;
+
+                    //Neither value exist
+                } else if (value1 == null && value2 == null) {
+                    result = 0;
+
+                } else if (typeof value1 === 'string' && typeof value2 === 'string') {
+                    result = value1.localeCompare(value2, undefined, {numeric: true});
+
+                } else {
+                    result = value1 < value2 ? -1 : value1 > value2 ? 1 : 0;
+                }
+
+                if (result === -1) {
+                    console.dir(value1 + ' < ' + value2);
+                } else if (result === 0) {
+                    console.dir(value1 + ' ==' + value2);
+                } else if (result === 1) {
+                    console.dir(value1 + ' > ' + value2);
+                }
+
+                return result;
+            });
+
+            return data;
         },
         resetPage() {
             this.d_first = 0;
@@ -244,6 +242,7 @@ export default defineComponent({
         },
         items() {
             if (this.data && this.data.length) {
+                console.dir('computed items');
                 let data = this.data;
 
                 if (data && data.length) {
@@ -255,7 +254,7 @@ export default defineComponent({
                         data = data.slice(first, first + this.rowSize * this.rowsPerPage);
                     }
                     if (this.sortField) {
-                        data = this.sort();
+                        data = this.sort(data);
                     }
                 }
 
@@ -320,6 +319,7 @@ export default defineComponent({
   padding: 0.3rem;
   transition: ease-in-out 1.1s;
   cursor: pointer;
+  text-decoration-line: none;
 }
 
 .view-item:hover {
@@ -329,8 +329,7 @@ export default defineComponent({
 
 .cell-image {
   max-width: 100%;
-  height: auto;
-  height: 15rem;
+  height: 14rem;
   max-height: 15rem;
   object-fit: contain;
 }

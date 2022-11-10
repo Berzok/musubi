@@ -9,7 +9,28 @@ const routes: Array<RouteRecordRaw> = [
     {
         path: '/',
         name: 'Home',
-        component: Home,
+        component: () => import('../components/Home.vue'),
+    },
+    {
+        path: '/list',
+        name: 'list',
+        component: () => import('../components/Table.vue'),
+    },
+    {
+        path: '/view/:id',
+        name: 'item',
+        props: true,
+        component: () => import('../components/utils/Item.vue'),
+    },
+    {
+        path: '/send',
+        name: 'send',
+        component: () => import('../components/network/Send.vue')
+    },
+    {
+        path: '/receive',
+        name: 'receive',
+        component: () => import('../components/network/Receive.vue')
     },
     // {
     //     path: '/about',

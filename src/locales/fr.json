@@ -1,0 +1,47 @@
+{
+    "authenticate": {
+        "login": "Connexion",
+        "register": "Enregistrement",
+        "sucessMessage": "bienvenue",
+        "failMessage": "erreur: identifiant ou mot de passe incorect"
+    },
+    "login": {
+        "login": "Identifiant",
+        "password": "Mot de passe"
+    },
+    "register": {
+        "lastName": "Nom de famille",
+        "firstName": "Prenom",
+        "login": "Identifiant",
+        "password": "Mot de passe"
+    },
+    "form": {
+        "back": "Retour",
+        "search": "Recherche",
+        "sortBy": "Trier par",
+        "submit": "Enregistrer"
+    },
+    "item": {
+        "name": "Nom",
+        "date": "Date",
+        "tracked": "Suivi",
+        "synchronised": "Synchronisé",
+        "about": "À propos",
+        "path": "Chemin | Chemins",
+        "actions": {
+            "added": "{label} ajouté.",
+            "saved": "Sauvegarde effectuée."
+        }
+    },
+    "menu": {
+        "home": "Accueil",
+        "list": "Liste",
+        "network": "Réseau",
+        "send": "Envoyer",
+        "receive": "Recevoir"
+    },
+    "add": "Ajouter",
+    "send_file": "Envoyer un fichier",
+    "send_folder": "Envoyer un dossier",
+    "cancel": "Annuler"
+}
