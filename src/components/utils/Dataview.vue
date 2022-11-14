@@ -329,8 +329,9 @@ export default defineComponent({
 
 .cell-image {
   max-width: 100%;
-  height: 14rem;
-  max-height: 15rem;
+  //height: 14rem;
+  height: 17vh;
+  max-height: 18vh;
   object-fit: contain;
 }
 
@@ -346,7 +347,7 @@ export default defineComponent({
 
 .card-title {
   color: #d479f3;
-  -webkit-text-stroke: 1px #5d5d5d;
+  //-webkit-text-stroke: 1px #5d5d5d;
 }
 
 .page-item {
