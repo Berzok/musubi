@@ -16,7 +16,7 @@ async function loadLocaleMessages() {
 }
 
 
-const i18n = createI18n({
+const i18n = await createI18n({
     legacy: false,
     flatJson: false,
     globalInjection: true,

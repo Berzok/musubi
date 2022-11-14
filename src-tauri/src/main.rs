@@ -3,7 +3,9 @@ all(not(debug_assertions), target_os = "windows"),
 windows_subsystem = "windows"
 )]
 
-use tauri::{CustomMenuItem, Menu, MenuItem, Submenu};
+use tauri::{App, CustomMenuItem, Menu, MenuItem, Submenu};
+use tauri::api::path::app_data_dir;
+use tauri::utils::config::BundleConfig;
 use utils::filesystem::*;
 use utils::http::connect_to_ip;
 
@@ -18,7 +20,21 @@ fn greet(name: &str) -> String {
 
 pub fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![greet, connect_to_ip, is_directory, directory_content])
+        .setup(|app| {
+            let identifier = BundleConfig::default().identifier.to_string();
+            let cfg = confy::load(&*identifier, None)?;
+            Ok(())
+        })
+        // .manage(AppDataDir(app_happ_data_dir().unwrap()))
+        .invoke_handler(tauri::generate_handler![
+            connect_to_ip,
+            directory_content,
+            greet,
+            is_directory,
+            read_file,
+            send_directory,
+            write_file
+        ])
         .menu(init_menu())
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

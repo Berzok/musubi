@@ -30,7 +30,8 @@
         "path": "Chemin | Chemins",
         "actions": {
             "added": "{label} ajouté.",
-            "saved": "Sauvegarde effectuée."
+            "saved": "Sauvegarde effectuée.",
+            "delete": "Supprimer"
         }
     },
     "menu": {

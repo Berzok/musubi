@@ -1,9 +1,11 @@
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import vue from "@vitejs/plugin-vue";
 import vueI18n from '@intlify/vite-plugin-vue-i18n'
 import path from 'path';
 
-console.dir(path.resolve(__dirname, './src/locales/**'));
+// process.env is now equivalent to import.meta.env
+process.env = {...process.env, ...loadEnv('development', process.cwd())};
+
 // https://vitejs.dev/config/
 export default defineConfig({
     assetsInclude: ['**/*.png'],
@@ -16,7 +18,11 @@ export default defineConfig({
     server: {
         host: true,
         port: 1420,
-        strictPort: true,
+        strictPort: true
+    },
+
+    define: {
+        'process.env': process.env
     },
 
     // to make use of `TAURI_DEBUG` and other env variables
@@ -24,7 +30,7 @@ export default defineConfig({
     envPrefix: ["VITE_", "TAURI_"],
     build: {
         // Tauri supports es2021
-        target: ["es2021", "chrome100", "safari13"],
+        target: ["esnext"], //"es2021", "chrome100", "safari13",
         // don't minify for debug builds
         minify: !process.env.TAURI_DEBUG ? "esbuild" : false,
         // produce sourcemaps for debug builds

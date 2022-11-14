@@ -59,8 +59,17 @@
       <div class="form-row">
         <label for="path" class="form-label">{{ this.$t('item.path', 2) }}</label>
 
+        <div class="d-flex w-100">
+        </div>
         <template v-for="(p, i) in this.item.paths" :key="p">
-          <span class="form-control item-path" @click="this.selectPath()">{{ this.item.paths[i] }}</span>
+          <div class="d-flex w-100">
+            <span class="form-control item-path" :data-name="p.id" @click="this.selectPath()">
+              {{ p.path }}
+            </span>
+            <button class="btn btn-delete col-1" @click="this.removePath(p.id)">
+              <span class="fa-solid fa-trash-can"></span>
+            </button>
+          </div>
         </template>
         <button class="btn btn-outline-info" @click="this.addPath()">
           <span class="fa-solid fa-plus"></span>
@@ -118,7 +127,7 @@ export default defineComponent({
     mounted() {
         itemService.get(this.id).then(response => {
             this.item = response;
-        })
+        });
     },
     methods: {
         async addPath() {
@@ -142,7 +151,18 @@ export default defineComponent({
             this.$emit('update:first', this.d_first);
         },
         send() {
-            itemService.send(this.item.id);
+            const code = 72;
+            itemService.send(code, this.item.id);
+        },
+        removePath(id) {
+            for (const p of this.item.paths) {
+                if (p.id === id) {
+                    const index = this.item.paths.indexOf(p);
+                    this.item.paths.splice(index, 1);
+                    break;
+                }
+            }
+            console.dir(this.item);
         },
         receive() {
             invoke()
@@ -199,6 +219,17 @@ export default defineComponent({
   color: #6169f1;
   text-align: start;
   margin-bottom: 0.5rem;
+}
+
+.btn-delete {
+  color: lightgrey;
+  background-color: #dc3545;
+  margin-bottom: 0.5rem;
+}
+
+.btn-delete:hover {
+  background-color: darkred;
+  color: black;
 }
 
 .form-check-label {
