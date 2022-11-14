@@ -1,11 +1,12 @@
 import { invoke } from '@tauri-apps/api/tauri';
 import { getName } from '@tauri-apps/api/app';
 //TODO: replace by appDataDir with new tauri version
-import { appDataDir, BaseDirectory, dataDir, join } from '@tauri-apps/api/path';
+import { appDataDir, BaseDirectory, dataDir, dirname, join } from '@tauri-apps/api/path';
 import { createDir, exists, FileEntry, readDir, readTextFile, writeTextFile } from '@tauri-apps/api/fs';
 import filenamify from 'filenamify';
-import { Item } from '@/interfaces/item';
+import { Item, Path } from '@/interfaces/item';
 import { useStore } from '@/store/user';
+import axios from 'axios';
 
 //export const USER_API_ENDPOINT = `${process.env.VUE_APP_API_BASE_URL}/login`;
 export const USER_API_ENDPOINT = `/login`;
@@ -18,7 +19,6 @@ export const itemService = {
      * @returns {Promise<AxiosResponse<any> | boolean>}
      */
     async get(id: string): Promise<Item> {
-        console.dir(await appDataDir());
         try {
             const path = await this.filepathFromId(id);
             const text = await readTextFile(path, {dir: BaseDirectory.Data});
@@ -32,7 +32,10 @@ export const itemService = {
                     image: "http://127.0.0.1:1420/src/assets/katawa_shoujo.png",
                     filename: "",
                     paths: [
-                        "C:\\Users\\u.friedrich\\Pictures\\pf"
+                        {
+                            id: 'pf',
+                            path: "C:\\Users\\u.friedrich\\Pictures\\pf"
+                        }
                     ],
                     about: "Consectetur sint anim magna elit sunt est velit tempor labore minim incididunt nisi ullamco nisi. Esse ullamco dolore aute deserunt reprehenderit eiusmod qui. Nulla sit incididunt magna cillum id et nostrud fugiat ipsum est do. Laboris nulla amet ex nisi exercitation cupidatat aliqua sint consectetur ea.\r\n",
                     tracked: true,
@@ -42,30 +45,66 @@ export const itemService = {
         }
     },
 
-    async send(id: string) {
+    async send(code: number, id: string) {
         const item: Item = await this.get(id);
         const files: Array<any> = [];
+
+        /**
+         * Iterating over the saved paths of the Item
+         * @var Path path
+         **/
         for (const path of item.paths) {
-            const isDir: boolean = await invoke('is_directory', {path: path});
+            console.dir(path);
+            const isDir: boolean = await invoke('is_directory', {path: path.path});
+
+            //If it's a directory
             if (isDir) {
-                const entries = await invoke('directory_content', {path: path});
-                console.dir(entries);
-                // this.processEntries(entries);
-            }
-            console.dir(isDir);
-        }
-    },
+                await this.sendDirectory(path);
 
-    processEntries(entries: Array<FileEntry>) {
-        for (const entry of entries) {
-            console.log(`Entry: ${entry.path}`);
-            if (entry.children) {
-                this.processEntries(entry.children)
+            } else {
+                //TODO: Send a single file
             }
         }
     },
 
-    async sendFiles(files: Array<any>) {
+    /**
+     * Send the files to the given code endpoint
+     * @param code
+     * @param entries
+     */
+    async sendFiles(code: number, entries: Array<string>) {
+        let fd = new FormData();
+        for (const file of entries) {
+            const content = await invoke<Uint8Array>('read_file', {path: file});
+            const u8 = content;
+            console.dir(u8);
+            await invoke('write_file', {path: await appDataDir() + 'bob.png', content: u8})
+            // const blob = new Blob(content);
+            // fd.append('INPUTNAME', content)
+            console.dir(content);
+            return;
+            await axios.post(`send/${code}`, file)
+                .then(function (response) {
+                    //What is the response status ?
+                    const data = response.data;
+                    console.dir(data);
+
+                    if (data.status === 1) {
+                        return data;
+                    } else {
+                        return false;
+                    }
+                }).catch(() => false);
+        }
+    },
+
+    /**
+     * Send a directory over HTTP.
+     * @param path
+     */
+    async sendDirectory(path: Path) {
+        const entries = await invoke<Array<string>>('send_directory', {path: path.path});
+        console.dir(entries);
     },
 
     /**

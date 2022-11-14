@@ -34,7 +34,7 @@
 
 </template>
 
-<script lang="ts">
+<script lang="js">
 import { defineComponent } from 'vue';
 import wool from '@/assets/ball_of_wool.svg';
 import { invoke } from '@tauri-apps/api/tauri';

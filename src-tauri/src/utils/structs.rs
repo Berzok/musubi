@@ -1,10 +1,11 @@
 use serde::{ser::Serializer, Deserialize, Serialize};
+use tempfile::PersistError;
 
 // create the error type that represents all errors possible in our program
 #[derive(Debug, thiserror::Error)]
 pub enum CommandError {
     #[error(transparent)]
-    TauriError(#[from] std::io::Error),
+    TauriError(#[from] std::io::Error)
 }
 
 // we must manually implement serde::Serialize
@@ -18,3 +19,10 @@ impl Serialize for CommandError {
 }
 
 pub type CommandResult<T, E = CommandError> = anyhow::Result<T, E>;
+
+
+#[derive(Serialize, Deserialize)]
+struct MyConfig {
+    version: u8,
+    api_key: String,
+}

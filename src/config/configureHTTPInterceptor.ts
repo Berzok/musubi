@@ -10,19 +10,19 @@ function configure(configuration: AxiosRequestConfig) {
     useStore().loading = true;
     //loadStore().dispatch(loadingActionTypes.beginLoading, undefined);
     const conf = configuration;
+    conf.baseURL = process.env.VITE_API_URL;
     conf.timeout = 180000;
     return conf;
 }
 
 function requestErrorHandler(error: any) {
     useStore().loading = false;
-    //loadStore().dispatch(loadingActionTypes.endLoading, undefined);
     useToast().error('Invalid request');
     return Promise.reject(error);
 }
 
 function responseHandler(response: AxiosResponse<any>) {
-    //loadStore().dispatch(loadingActionTypes.endLoading, undefined);
+    useStore().loading = false;
     if (response.status !== 200 && response.status !== 201 && response.status !== 204) {
         useToast().error(`Request failed ${response.status} : ${response.statusText}`);
     }
@@ -31,6 +31,8 @@ function responseHandler(response: AxiosResponse<any>) {
 
 function responseErrorHandler(error: any) {
     let disableNotif = false;
+    useStore().loading = false;
+    console.dir(error);
     //loadStore().dispatch(loadingActionTypes.endLoading, undefined);
     if (error.response) {
         switch (error.response.status) {

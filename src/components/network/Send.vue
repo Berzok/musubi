@@ -32,7 +32,7 @@
   <button @click="this.selectFolder()" class="btn btn-primary"></button>
 </template>
 
-<script lang="ts">
+<script>
 import { defineComponent } from "vue";
 import { dialogService } from '@/services/dialogService'
 

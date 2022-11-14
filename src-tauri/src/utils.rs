@@ -1,4 +1,4 @@
 pub mod http;
 pub mod filesystem;
-pub mod error;
+pub mod structs;
 // pub mod error;
