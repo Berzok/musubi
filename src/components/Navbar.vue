@@ -34,7 +34,7 @@
 
 <script lang="ts">
 import { computed, defineComponent } from 'vue';
-import { useStore as userStore } from '@/store/user';
+import { useStore as userStore } from '@/store/main';
 import axios from "axios";
 import { mapActions, mapState } from 'pinia';
 

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useStore } from '@/store/user';
+import { useStore } from '@/store/main';
 import { invoke } from '@tauri-apps/api/tauri';
 
 //export const USER_API_ENDPOINT = `${process.env.VUE_APP_API_BASE_URL}/login`;

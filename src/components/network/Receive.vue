@@ -7,6 +7,7 @@
 import { defineComponent } from "vue";
 import json from '@/resources/json/table.json'
 import Dataview from "@/components/utils/Dataview.vue";
+import { useStore } from '@/store/main';
 
 export default defineComponent({
     name: "Receive",
@@ -19,7 +20,12 @@ export default defineComponent({
         }
     },
     methods: {},
-    mounted() {}
+    setup() {
+        const mainStore = useStore();
+        return mainStore;
+    },
+    mounted() {
+    }
 })
 </script>
 
