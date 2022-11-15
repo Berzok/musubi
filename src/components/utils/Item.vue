@@ -56,28 +56,38 @@
 
       <hr/>
 
-      <div class="form-row">
-        <label for="path" class="form-label">{{ this.$t('item.path', 2) }}</label>
+      <div class="form-row flex-column">
+        <label for="path" class="form-label w-100">{{ this.$t('item.path', 2) }}</label>
 
-        <div class="d-flex w-100">
+        <div class="d-flex">
+          <template v-for="(p, i) in this.item.paths" :key="p">
+            <div class="d-flex w-100 justify-content-between">
+              <span class="form-control item-path" :data-name="p.id" @click="this.selectPath()">
+                {{ p.path }}
+              </span>
+              <button class="btn btn-delete col-2" @click="this.removePath(p.id)">
+                <span class="fa-solid fa-trash-can"></span>
+              </button>
+            </div>
+          </template>
+
         </div>
-        <template v-for="(p, i) in this.item.paths" :key="p">
-          <div class="d-flex w-100">
-            <span class="form-control item-path" :data-name="p.id" @click="this.selectPath()">
-              {{ p.path }}
-            </span>
-            <button class="btn btn-delete col-1" @click="this.removePath(p.id)">
-              <span class="fa-solid fa-trash-can"></span>
-            </button>
-          </div>
-        </template>
         <button class="btn btn-outline-info" @click="this.addPath()">
           <span class="fa-solid fa-plus"></span>
           {{ this.$t('add') }}
         </button>
       </div>
-
     </div>
+
+    <dialog id="sendDialog">
+      <form method="dialog" class="form-control bg-danger" @submit="this.updateDestinationIP()">
+        <label for="code" class="form-label">IP:</label>
+        <input id="code" v-model="this.code" type="text" class="form-control">
+        <button class="btn btn-warning" value="cancel">Cancel</button>
+        <button class="btn btn-success" type="submit">Confirm</button>
+      </form>
+    </dialog>
+
   </div>
 </template>
 
@@ -85,13 +95,17 @@
 import { defineComponent } from "vue";
 import { useToast } from "vue-toast-notification";
 import { useItem } from "@/store/item";
+import { useStore } from "@/store/main";
 import { dialogService } from "@/services/dialogService";
 import { itemService } from "@/services/itemService";
 import { invoke } from "@tauri-apps/api/tauri";
+import Dialog from "@/components/utils/Dialog.vue";
 
 export default defineComponent({
     name: 'Item',
-    components: {},
+    components: {
+        Dialog
+    },
     emits: ['update:first', 'page'],
     props: {
         id: {
@@ -110,7 +124,8 @@ export default defineComponent({
             image: null,
             about: null,
             tracked: false,
-            synchronised: false
+            synchronised: false,
+            code: null
         };
     },
     watch: {
@@ -122,7 +137,8 @@ export default defineComponent({
         // Get toast interface
         const toast = useToast();
         const itemStore = useItem();
-        return {toast, itemStore};
+        const mainStore = useStore();
+        return {toast, itemStore, mainStore};
     },
     mounted() {
         itemService.get(this.id).then(response => {
@@ -130,6 +146,10 @@ export default defineComponent({
         });
     },
     methods: {
+        updateDestinationIP(){
+            this.mainStore.code = this.code;
+            itemService.send(this.item.id);
+        },
         async addPath() {
             const p = await dialogService.selectDirectory();
             if (p) {
@@ -152,7 +172,8 @@ export default defineComponent({
         },
         send() {
             const code = 72;
-            itemService.send(code, this.item.id);
+            document.getElementById('sendDialog').showModal();
+            //itemService.send(code, this.item.id);
         },
         removePath(id) {
             for (const p of this.item.paths) {
@@ -208,7 +229,8 @@ export default defineComponent({
   border: 1px solid slateblue;
   border-radius: 8px;
   max-width: 100%;
-  height: 25rem;
+  max-height: 70vh;
+  min-height: 20vh;
   object-fit: contain;
 }
 
@@ -219,6 +241,8 @@ export default defineComponent({
   color: #6169f1;
   text-align: start;
   margin-bottom: 0.5rem;
+  width: 75%;
+  min-width: 17rem;
 }
 
 .btn-delete {

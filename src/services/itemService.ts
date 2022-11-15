@@ -5,7 +5,7 @@ import { appDataDir, BaseDirectory, dataDir, dirname, join } from '@tauri-apps/a
 import { createDir, exists, FileEntry, readDir, readTextFile, writeTextFile } from '@tauri-apps/api/fs';
 import filenamify from 'filenamify';
 import { Item, Path } from '@/interfaces/item';
-import { useStore } from '@/store/user';
+import { useStore } from '@/store/main';
 import axios from 'axios';
 
 //export const USER_API_ENDPOINT = `${process.env.VUE_APP_API_BASE_URL}/login`;
@@ -45,10 +45,11 @@ export const itemService = {
         }
     },
 
-    async send(code: number, id: string) {
+    async send(id: string) {
         const item: Item = await this.get(id);
         const files: Array<any> = [];
 
+        console.dir(item.paths);
         /**
          * Iterating over the saved paths of the Item
          * @var Path path
@@ -103,8 +104,10 @@ export const itemService = {
      * @param path
      */
     async sendDirectory(path: Path) {
-        const entries = await invoke<Array<string>>('send_directory', {path: path.path});
-        console.dir(entries);
+        const code = useStore().getCode;
+        console.dir(code);
+        const file = await invoke<Array<string>>('send_directory', {ip: code, path: path.path});
+        console.dir(file);
     },
 
     /**

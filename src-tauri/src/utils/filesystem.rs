@@ -1,11 +1,14 @@
 use std::fs::{File, metadata, read, ReadDir, write};
 use std::fs::read_dir;
+use std::io::Read;
 use std::path::PathBuf;
 use std::str::FromStr;
 
 use flate2::Compression;
 use flate2::write::GzEncoder;
+use reqwest::blocking::Response;
 use tempfile::NamedTempFile;
+use crate::utils::http::send_paquet;
 
 use crate::utils::structs::CommandResult;
 
@@ -41,12 +44,18 @@ pub fn write_file(path: &str, content: Vec<u8>) -> CommandResult<()> {
 }
 
 #[tauri::command]
-pub fn send_directory(path: &str) -> CommandResult<()> {
+pub async fn send_directory(ip: &str, path: &str) -> CommandResult<String> {
     let entries = read_dir(path).unwrap();
     let tarball = prepare_tarball(entries);
     println!("path: {}", tarball.path().display());
-    let file = tarball.keep().unwrap().0;
-    Ok(())
+
+    // let file = tarball.keep().unwrap().0;
+    let tarball_path = tarball.into_temp_path();
+
+    let mut res= send_paquet(ip, tarball_path).await.unwrap();
+    let content = res.text().await.unwrap();
+
+    Ok(content)
 }
 
 fn save_paquet(paquet: NamedTempFile) -> (File, PathBuf) {
@@ -56,7 +65,6 @@ fn save_paquet(paquet: NamedTempFile) -> (File, PathBuf) {
 
 //Create a file inside of `std::env::temp_dir()`.
 fn create_temp_tar_file() -> NamedTempFile {
-    ;
     // let app_data_path = confy::load("AppData;";
     // NamedTempFile::new_in(app_data_path.variable()).unwrap()
     //NamedTempFile::new_in("C:/Users/u.friedrich/AppData/Roaming/musubi").unwrap()

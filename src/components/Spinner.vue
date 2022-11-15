@@ -8,7 +8,7 @@
 
 <script lang="js">
 import { defineComponent } from 'vue';
-import { useStore } from "@/store/user";
+import { useStore } from "@/store/main";
 
 export default defineComponent({
     name: 'Spinner',

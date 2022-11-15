@@ -77,5 +77,6 @@ export default defineComponent({
   font-size: 3rem;
   margin-left: 1rem;
   margin-right: 1rem;
+  width: 30%;
 }
 </style>

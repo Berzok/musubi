@@ -42,7 +42,7 @@
         "receive": "Recevoir"
     },
     "add": "Ajouter",
+    "cancel": "Annuler",
     "send_file": "Envoyer un fichier",
-    "send_folder": "Envoyer un dossier",
-    "cancel": "Annuler"
+    "send_folder": "Envoyer un dossier"
 }

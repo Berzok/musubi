@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
-import { useStore } from '@/store/user';
+import { useStore } from '@/store/main';
 import Home from '@/components/Home.vue';
 
 export const LOGIN_PAGE_NAME = 'login';

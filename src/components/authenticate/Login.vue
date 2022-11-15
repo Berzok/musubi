@@ -30,7 +30,7 @@
 import { useToast } from 'vue-toast-notification';
 import { defineComponent } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useStore } from '@/store/user';
+import { useStore } from '@/store/main';
 import router, { HOME_PAGE_NAME } from '@/router';
 
 export default defineComponent({

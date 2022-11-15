@@ -4,8 +4,8 @@ import { authService } from '@/services/authService';
 
 const useStore = defineStore('main', {
     state: () => ({
-        /** @type {number|null} */
-        personnage: null,
+        /** @type {string|null} */
+        code: null,
         /** @type {'all' | 'finished' | 'unfinished'} */
         filter: 'all',
         // type will be automatically inferred to number
@@ -15,9 +15,7 @@ const useStore = defineStore('main', {
     }),
     getters: {
         getToken: (state) => state.token,
-        getPersonnage(state) {
-            return state.personnage;
-        },
+        getCode: (state) => state.code,
         isLoading: (state) => state.loading,
         /**
          * Check if a user is logged;

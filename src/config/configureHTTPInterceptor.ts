@@ -1,7 +1,7 @@
 import Axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { useToast } from 'vue-toast-notification';
 import router from '@/router/index';
-import { useStore } from '@/store/user';
+import { useStore } from '@/store/main';
 // import { loadStore } from '@/store/modules/loading';
 // import { ActionTypes as loadingActionTypes } from '@/store/modules/loading/actions';
 
