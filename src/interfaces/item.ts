@@ -7,7 +7,7 @@ export interface Item {
     id: string;
     name: string;
     filename: string;
-    picture: string;
+    image: string;
     paths: Array<Path>;
     tracked: boolean;
     synchronised: boolean;

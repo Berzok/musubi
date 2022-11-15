@@ -19,9 +19,11 @@ import 'bootstrap/dist/css/bootstrap-utilities.min.css';
 import 'primeflex/primeflex.css';
 import 'primeicons/primeicons.css';
 import "@/style.css";
+import { itemStore } from '@/store/item';
 
 const pinia = createPinia();
 configureHTTPInterceptor();
+
 
 createApp(App)
     .use(VueToast, {
@@ -34,3 +36,4 @@ createApp(App)
     .use(PrimeVue)
     .use(DialogService)
     .mount("#app");
+itemStore().init();

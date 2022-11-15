@@ -1,19 +1,19 @@
 import { acceptHMRUpdate, defineStore } from 'pinia';
-import axios, { AxiosResponse } from "axios";
 import { authService } from '@/services/authService';
 import { itemService } from '@/services/itemService';
+import { Item } from '@/interfaces/item';
 
-const useItem = defineStore('item', {
+const itemStore = defineStore('item', {
     state: () => ({
         /** @type {number|string|null} */
         id: null,
         /** @type {'all' | 'finished' | 'unfinished'} */
-        items: [],
         // type will be automatically inferred to number
-        token: ''
+        bob: [],
+        /** @type {Item[]} */
+        items: [] as Item[]
     }),
     getters: {
-        getToken: (state) => state.token,
         /**
          * Check if a user is logged;
          * @param state
@@ -22,10 +22,6 @@ const useItem = defineStore('item', {
         hasId: (state) => state.id
     },
     actions: {
-        async login(passcode: string) {
-            this.token = await authService.login(passcode);
-            return true;
-        },
         async get(id: string) {
             return await itemService.get(id);
             /*
@@ -34,15 +30,18 @@ const useItem = defineStore('item', {
             });
              */
         },
-        async save(item: any){
+        async save(item: any) {
             return await itemService.save(item);
+        },
+        async init(): Promise<void> {
+            this.$state.items = await itemService.loadAll();
         }
     },
 });
 
 // make sure to pass the right store definition, `useAuth` in this case.
 if (import.meta.hot) {
-    import.meta.hot.accept(acceptHMRUpdate(useItem, import.meta.hot))
+    import.meta.hot.accept(acceptHMRUpdate(itemStore, import.meta.hot))
 }
 
-export { useItem };
+export { itemStore };

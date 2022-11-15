@@ -148,16 +148,23 @@ export const itemService = {
      * @param relative
      */
     async getDataPath(relative: boolean = true): Promise<string> {
-        if (relative) {
-            return await join(await appDataDir(), 'data');
-        } else {
-            return await join(await appDataDir(), 'data');
-        }
+        return await join(await appDataDir(), 'data');
     },
 
     async filepathFromId(id: string) {
         const filename = this.resolveFilename(id);
         const dataPath = await this.getDataPath();
         return await join(dataPath, filename.concat('.json'));
+    },
+
+    async loadAll(): Promise<Item[]> {
+        let items: Array<Item> = [];
+        const entries = await readDir('data', { dir: BaseDirectory.AppData, recursive: true });
+        for (const entry of entries) {
+            const item = await readTextFile(entry.path, {dir: BaseDirectory.Data});
+            items.push(JSON.parse(item) as unknown as Item);
+        }
+
+        return items;
     }
 };

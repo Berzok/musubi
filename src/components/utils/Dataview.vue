@@ -1,7 +1,7 @@
 <template>
   <div class="view-container">
     <div class="view-header">
-      <div class="col-3">
+      <div class="col-5 col-lg-4">
         <label for="search" class="form-label">{{ this.$t('form.search') }}</label>
         <div class="d-flex">
           <input id="search" v-model="this.searchTerm" @input="" type="text" class="form-control">
@@ -10,7 +10,7 @@
           </button>
         </div>
       </div>
-      <div class="col-2">
+      <div class="col-3 col-lg-2">
         <label for="sort" class="form-label">{{ this.$t('form.sortBy') }}</label>
         <div class="d-flex">
           <select id="sort" v-model="sortField" class="form-select">
@@ -25,11 +25,11 @@
       </div>
     </div>
 
-    <div class="view-table">
+    <div v-if="this.data" class="view-table">
       <template v-for="i in items" :key="i">
         <router-link :to="{name: 'item', params: {id: i.id}}" class="view-item">
           <div class="card">
-            <img :src="i.picture" class="card-img-top cell-image" :alt="i.name">
+            <img :src="i.image" class="card-img-top cell-image" :alt="i.name">
             <h4 class="card-title">{{ i.name }}</h4>
           </div>
         </router-link>
@@ -59,11 +59,12 @@
 
 </template>
 
-<script>
+<script lang="ts">
 import { ObjectUtils } from 'primevue/utils';
 import yarn from '@/assets/yarn.png';
 import plus from '@/assets/plus_sign.png';
-import { defineComponent, toRaw } from "vue";
+import { defineComponent, PropType, toRaw } from "vue";
+import { Item } from '@/interfaces/item';
 
 export default defineComponent({
     name: 'Dataview',
@@ -71,8 +72,9 @@ export default defineComponent({
     emits: ['update:first', 'page'],
     props: {
         data: {
-            type: Array,
-            default: null
+            type: Array as PropType<Item[]>,
+            default: [],
+            required: true
         },
         /**
          * Define if we do an infinite scrolling or old school pagination
@@ -130,15 +132,16 @@ export default defineComponent({
     },
     mounted() {
         let index = 1;
-        this.data.forEach((v, k) => {
-            v.picture = v.picture.length > 0 ? new URL('/src/assets/' + v.picture, import.meta.url) : yarn;
+        console.dir(this.data);
+        for (const v of this.data as Item[]) {
+            // v.image = (v.image.length > 0) ? new URL('/src/assets/' + v.image, import.meta.url).href : yarn;
             index++;
             //this.pages[this.pages.length-1]
             if (index >= (this.rowSize * this.rowsPerPage)) {
                 this.pages.push(Math.min(...this.pages) + 1);
                 index = 1;
             }
-        });
+        }
     },
     methods: {
         previousPage() {
@@ -147,7 +150,7 @@ export default defineComponent({
         nextPage() {
             this.loadPage(this.currentPage + 1);
         },
-        loadPage(index) {
+        loadPage(index: number) {
             if (index > this.pages[this.pages.length - 1] || index < 0) {
                 return false;
             }
@@ -156,32 +159,28 @@ export default defineComponent({
 
             this.$emit('update:first', this.d_first);
         },
-        search() {
-            if (this.data) {
-                const data = [...this.data];
-                let newData = [];
+        search(): Item[] {
+            const data = [...this.data];
+            let newData: Array<Item> = [];
 
-                data.forEach((e, i, a) => {
-                    if (e.name.toLowerCase().includes(this.searchTerm)) {
-                        newData.push(e);
-                    }
-                });
-
-                return newData;
+            for (const e of data as Item[]) {
+                if (e.name.toLowerCase().includes(this.searchTerm as unknown as string)) {
+                    newData.push(e);
+                }
             }
+
+            return newData;
+
         },
-        sort(d = null) {
+        sort(d: Item[]): Item[] {
             const data = (d) ? d : this.data;
             if (this.data) {
                 const data = [...this.data];
-            } else {
-                console.dir('oui');
-                return null;
             }
 
             data.sort((data1, data2) => {
-                let value1 = ObjectUtils.resolveFieldData(data1, this.sortField);
-                let value2 = ObjectUtils.resolveFieldData(data2, this.sortField);
+                let value1 = ObjectUtils.resolveFieldData(data1, this.sortField as unknown as string);
+                let value2 = ObjectUtils.resolveFieldData(data2, this.sortField as unknown as string);
                 let result = null;
 
                 //If only value2 exists
@@ -240,10 +239,10 @@ export default defineComponent({
         infinite() {
             return this.mode === 'infinite';
         },
-        items() {
+        items(): Array<Item> {
             if (this.data && this.data.length) {
                 console.dir('computed items');
-                let data = this.data;
+                let data: Item[] = this.data;
 
                 if (data && data.length) {
                     if (this.searchTerm) {
@@ -261,7 +260,7 @@ export default defineComponent({
                 return data;
 
             } else {
-                return null;
+                return [];
             }
         }
     }

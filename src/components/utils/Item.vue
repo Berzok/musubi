@@ -94,7 +94,7 @@
 <script>
 import { defineComponent } from "vue";
 import { useToast } from "vue-toast-notification";
-import { useItem } from "@/store/item";
+import { itemStore } from "@/store/item";
 import { useStore } from "@/store/main";
 import { dialogService } from "@/services/dialogService";
 import { itemService } from "@/services/itemService";
@@ -136,9 +136,8 @@ export default defineComponent({
     setup() {
         // Get toast interface
         const toast = useToast();
-        const itemStore = useItem();
         const mainStore = useStore();
-        return {toast, itemStore, mainStore};
+        return {toast, mainStore};
     },
     mounted() {
         itemService.get(this.id).then(response => {
@@ -189,7 +188,7 @@ export default defineComponent({
             invoke()
         },
         async save() {
-            let finished = this.itemStore.save(this.item);
+            let finished = itemStore().save(this.item);
             if (await finished) {
                 this.toast.success(this.$t('item.actions.saved'));
                 return true;
