@@ -23,19 +23,28 @@
           </button>
         </div>
       </div>
+      <div class="col-2 d-flex align-items-end">
+        <router-link :to="{name: 'item'}">
+          <button class="btn btn-secondary btn-outline-info">
+            <span class="fa-solid fa-plus"></span>
+            {{ this.$t('add') }}
+          </button>
+        </router-link>
+      </div>
     </div>
 
     <div v-if="this.data" class="view-table">
       <template v-for="i in items" :key="i">
         <router-link :to="{name: 'item', params: {id: i.id}}" class="view-item">
           <div class="card">
-            <img :src="i.image" class="card-img-top cell-image" :alt="i.name">
+            <img :src="this.imageSrc(i.image)" class="card-img-top cell-image" :alt="i.name"
+                 :style="{filter: 'hue-rotate(' + this.randomHue(i.image.length>0) + ')'}">
             <h4 class="card-title">{{ i.name }}</h4>
           </div>
         </router-link>
       </template>
 
-      <div v-show="!(this.sortField || this.searchTerm) && this.freeSpace" class="view-item">
+      <div v-show="!(this.sortField || this.searchTerm) && this.freeSpace && false" class="view-item">
         <div class="card">
           <span class="fa-solid fa-plus"></span>
           <img :src="this.plusSign" class="card-img-top cell-image" alt="placeholder">
@@ -44,7 +53,7 @@
       </div>
     </div>
 
-    <nav class="view-pagination" aria-label="Item navigation">
+    <nav v-if="this.hasPagination" class="view-pagination" aria-label="Item navigation">
       <button @click="this.previousPage()" class="page-item">
         <span class="fa-solid fa-angles-left"></span>
       </button>
@@ -61,10 +70,10 @@
 
 <script lang="ts">
 import { ObjectUtils } from 'primevue/utils';
-import yarn from '@/assets/yarn.png';
 import plus from '@/assets/plus_sign.png';
 import { defineComponent, PropType, toRaw } from "vue";
 import { Item } from '@/interfaces/item';
+import yarn from '@/assets/ball_of_wool.svg';
 
 export default defineComponent({
     name: 'Dataview',
@@ -127,14 +136,12 @@ export default defineComponent({
         },
         sortField() {
             // console.dir(this.items);
-            //this.resetPage();
         },
     },
     mounted() {
         let index = 1;
         console.dir(this.data);
         for (const v of this.data as Item[]) {
-            // v.image = (v.image.length > 0) ? new URL('/src/assets/' + v.image, import.meta.url).href : yarn;
             index++;
             //this.pages[this.pages.length-1]
             if (index >= (this.rowSize * this.rowsPerPage)) {
@@ -144,6 +151,20 @@ export default defineComponent({
         }
     },
     methods: {
+        imageSrc(image: string){
+            if(image.length > 0){
+                return image;
+            } else{
+                return yarn;
+            }
+        },
+        randomHue(exists: boolean) {
+            if(!exists) {
+                const deg: string = Math.floor(Math.random() * 360).toString();
+                return deg.concat('deg');
+            }
+            return 0;
+        },
         previousPage() {
             this.loadPage(this.currentPage - 1);
         },
@@ -215,10 +236,6 @@ export default defineComponent({
 
             return data;
         },
-        resetPage() {
-            this.d_first = 0;
-            this.$emit('update:first', this.d_first);
-        },
         resetSearch() {
             this.searchTerm = null;
         },
@@ -236,8 +253,8 @@ export default defineComponent({
         pagination() {
             return this.mode === 'pagination';
         },
-        infinite() {
-            return this.mode === 'infinite';
+        hasPagination() {
+            return this.pages.length > 1;
         },
         items(): Array<Item> {
             if (this.data && this.data.length) {
@@ -281,6 +298,7 @@ export default defineComponent({
 
 .view-header {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   margin-bottom: 2rem;
   font-weight: bold;

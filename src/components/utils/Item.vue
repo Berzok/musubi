@@ -1,9 +1,11 @@
 <template>
 
-  <div class="item-details">
+  <form class="item-details" @submit.prevent="this.save()">
+
     <div class="image-container">
-      <img :src="this.item.image" alt="Image" class="item-image" @click="uploadImage()"/>
-      <input id="image_upload" type="file" @change="imageChange($event)" hidden>
+      <img :src="this.imageSrc" alt="Image" class="item-image" @click="uploadImage()"
+           :style="{ filter: 'hue-rotate(' + randomHue + ')'}"/>
+      <input id="image_upload" type="file" accept="image/*" @change="imageChange($event)" hidden>
 
       <div class="d-flex flex-wrap justify-content-center mt-4">
         <button @click="this.send()" class="btn btn-primary col-5 me-1 mb-2">
@@ -16,13 +18,13 @@
         </button>
 
         <div class="d-flex justify-content-center col-12">
-          <button @click="this.save()" class="btn btn-success ms-1">
+          <button class="btn btn-success ms-1">
             <span class="fa-solid fa-save"></span>
             {{ this.$t('form.submit') }}
           </button>
         </div>
         <div class="d-flex justify-content-center col-12">
-          <button @click="$router.go(-1)" class="btn btn-secondary mx-auto">
+          <button type="button" @click="$router.push({name: 'list'})" class="btn btn-secondary mx-auto">
             <span class="fa-solid fa-times"></span>
             {{ this.$t('form.back') }}
           </button>
@@ -33,7 +35,7 @@
     <div class="d-flex flex-column flex-fill">
       <div class="form-row">
         <label for="name" class="form-label">{{ this.$t('item.name') }}: </label>
-        <input id="name" class="form-control" v-model="this.item.name">
+        <input id="name" class="form-control" required v-model="this.item.name">
       </div>
 
       <div class="form-row">
@@ -88,18 +90,21 @@
       </form>
     </dialog>
 
-  </div>
+  </form>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent } from "vue";
 import { useToast } from "vue-toast-notification";
 import { itemStore } from "@/store/item";
 import { useStore } from "@/store/main";
-import { dialogService } from "@/services/dialogService";
+import { dialogService } from "@/services/dialog/dialogService";
 import { itemService } from "@/services/itemService";
-import { invoke } from "@tauri-apps/api/tauri";
+import { convertFileSrc } from "@tauri-apps/api/tauri";
 import Dialog from "@/components/utils/Dialog.vue";
+import yarn from '@/assets/ball_of_wool.svg';
+import { Item } from '@/interfaces/item';
+import { basename, dirname, isAbsolute } from '@tauri-apps/api/path';
 
 export default defineComponent({
     name: 'Item',
@@ -119,7 +124,8 @@ export default defineComponent({
     },
     data() {
         return {
-            item: {},
+            item: {} as Item,
+            imageSrc: '',
             name: null,
             image: null,
             about: null,
@@ -128,24 +134,41 @@ export default defineComponent({
             code: null
         };
     },
-    watch: {
-        first(newValue) {
-            this.d_first = newValue;
-        },
-    },
-    setup() {
+    setup(props) {
         // Get toast interface
         const toast = useToast();
         const mainStore = useStore();
-        return {toast, mainStore};
+        const item = itemStore().getById(props.id);
+        return {toast, item, mainStore};
     },
     mounted() {
-        itemService.get(this.id).then(response => {
-            this.item = response;
-        });
+        //If we have an id, this means the item already exists (ie, we are not creating a new one)
+        if (this.id) {
+            this.item = itemStore().current = itemStore().getById(this.id);
+        }
+
+        //If no image is configured, we use a coloured version of our yarn ball
+        if (this.item.image.length > 0) {
+            this.imageSrc = itemStore().current.image;
+        } else {
+            this.imageSrc = yarn;
+        }
+        console.dir(this.item);
+        console.dir(isAbsolute(this.item.image));
+        console.dir(this.item.name);
+    },
+    computed: {
+        randomHue() {
+            if (this.item.image.length>0) {
+                return 0;
+            }
+            const deg: string = Math.floor(Math.random() * 360).toString();
+            return deg.concat('deg');
+        },
+
     },
     methods: {
-        updateDestinationIP(){
+        updateDestinationIP() {
             this.mainStore.code = this.code;
             itemService.send(this.item.id);
         },
@@ -165,16 +188,13 @@ export default defineComponent({
         selectPath() {
             dialogService.selectDirectory();
         },
-        resetPage() {
-            this.d_first = 0;
-            this.$emit('update:first', this.d_first);
-        },
         send() {
             const code = 72;
-            document.getElementById('sendDialog').showModal();
+            const m = document.getElementById('sendDialog') as HTMLDialogElement;
+            m.showModal();
             //itemService.send(code, this.item.id);
         },
-        removePath(id) {
+        removePath(id: string) {
             for (const p of this.item.paths) {
                 if (p.id === id) {
                     const index = this.item.paths.indexOf(p);
@@ -185,7 +205,10 @@ export default defineComponent({
             console.dir(this.item);
         },
         receive() {
-            invoke()
+            //invoke()
+        },
+        syncWithStore() {
+            itemStore().current = this.item;
         },
         async save() {
             let finished = itemStore().save(this.item);
@@ -194,18 +217,27 @@ export default defineComponent({
                 return true;
             }
         },
-        uploadImage() {
-            document.getElementById('image_upload').click();
+        async uploadImage() {
+            // document.getElementById('image_upload').click();
+            const image = await dialogService.selectFile();
+            if (image) {
+                this.item.image = image;
+                this.imageSrc = convertFileSrc(image);
+            }
         },
-        imageChange(event) {
-            const [file] = event.target.files
+        imageChange(event: Event) {
+            if (!event.target) {
+                return;
+            }
+            const file = (event.target as HTMLInputElement)?.files?.item(0);
             if (file) {
+                this.item.image = file.name;
+                this.imageSrc = URL.createObjectURL(file);
                 //TODO: Pouvoir modifier l'image
                 // this.personnage.image = URL.createObjectURL(file)
             }
         }
-    },
-    computed: {}
+    }
 });
 </script>
 
@@ -228,9 +260,9 @@ export default defineComponent({
   border: 1px solid slateblue;
   border-radius: 8px;
   max-width: 100%;
-  max-height: 70vh;
-  min-height: 20vh;
+  height: 60vh;
   object-fit: contain;
+  cursor: pointer;
 }
 
 .item-path {

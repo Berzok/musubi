@@ -11,7 +11,8 @@ const itemStore = defineStore('item', {
         // type will be automatically inferred to number
         bob: [],
         /** @type {Item[]} */
-        items: [] as Item[]
+        items: [] as Item[],
+        current: null as unknown as Item
     }),
     getters: {
         /**
@@ -19,22 +20,41 @@ const itemStore = defineStore('item', {
          * @param state
          * @returns {boolean|*}
          */
-        hasId: (state) => state.id
+        hasId: (state) => state.id,
+        image: (state) => {
+            return state.current.image;
+        }
     },
     actions: {
-        async get(id: string) {
-            return await itemService.get(id);
+        getEmpty() {
+            return {} as Item;
             /*
             return axios.get('/token/verify', {'token': this.token}).then((response: AxiosResponse) => {
                 return response.data;
             });
              */
         },
+        getById(id: string): Item {
+            for (const item of this.items as Item[]) {
+                if (item.id === id) {
+                    return item;
+                }
+            }
+            console.dir('No item found in store');
+            return this.getEmpty();
+        },
         async save(item: any) {
-            return await itemService.save(item);
+            const saved = itemService.save(item);
+            if(await saved){
+                await this.init();
+                return saved;
+            }
         },
         async init(): Promise<void> {
-            this.$state.items = await itemService.loadAll();
+            const items = await itemService.loadAll();
+            this.$state.items = items.sort((a, b) => {
+                return a.name.localeCompare(b.name);
+            });
         }
     },
 });

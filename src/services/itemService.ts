@@ -1,8 +1,7 @@
-import { invoke } from '@tauri-apps/api/tauri';
-import { getName } from '@tauri-apps/api/app';
+import { convertFileSrc, invoke } from '@tauri-apps/api/tauri';
 //TODO: replace by appDataDir with new tauri version
-import { appDataDir, BaseDirectory, dataDir, dirname, join } from '@tauri-apps/api/path';
-import { createDir, exists, FileEntry, readDir, readTextFile, writeTextFile } from '@tauri-apps/api/fs';
+import { appDataDir, BaseDirectory, basename, join } from '@tauri-apps/api/path';
+import { createDir, exists, readBinaryFile, readDir, readTextFile, writeTextFile } from '@tauri-apps/api/fs';
 import filenamify from 'filenamify';
 import { Item, Path } from '@/interfaces/item';
 import { useStore } from '@/store/main';
@@ -111,21 +110,27 @@ export const itemService = {
     },
 
     /**
-     *
+     * Save the configuration of an item as json, and updates the stored image if needed
      * @param item
      */
     async save(item: Item) {
         useStore().loading = true;
-        const filename = this.resolveFilename(item.id.toString()).concat('.json');
-        const dataPath = await this.getDataPath();
-        const filenameWithRelativePath = await join(dataPath, filename);
-
-        if (!(await exists(dataPath, {dir: BaseDirectory.Data}))) {
-            await createDir(dataPath, {dir: BaseDirectory.Data, recursive: true});
+        if (!item.id) {
+            item.id = crypto.randomUUID().replace(/-/g, "");
         }
 
-        item.filename = filename;
-        console.dir(item);
+        const itemDataPath = await this.getItemDataPath(item.id);
+        const filename = this.resolveFilename(item.id.toString()).concat('.json');
+        const filenameWithRelativePath = await join(itemDataPath, filename);
+        if (!(await exists(itemDataPath, {dir: BaseDirectory.Data}))) {
+            await createDir(itemDataPath, {dir: BaseDirectory.Data, recursive: true});
+        }
+
+        if (!item.image || item.image.length === 0) {
+            item.image = '';
+        } else {
+            item.image = await this.updateImage(item.image, itemDataPath);
+        }
 
         // Create the `$APPDIR/users` directory
         await writeTextFile(filenameWithRelativePath, JSON.stringify(item), {dir: BaseDirectory.Data});
@@ -133,9 +138,20 @@ export const itemService = {
         return true;
     },
 
+    async updateImage(origin: string, itemPath: string): Promise<string> {
+        const imageName = await basename(origin);
+        const u8 = await invoke<Uint8Array>('read_file', {path: origin});
+        console.dir(u8);
+        const destination = await join(itemPath, imageName);
+        await invoke('write_file', {path: destination, content: u8}).then(async () => {
+            await invoke('optimise_image', {path: destination});
+        });
+        return imageName;
+    },
+
     /**
-     * Get a safe filename from the item name
-     * @param name - Name of the item
+     * Get a safe filename from a string
+     * @param name - String to process
      * @return The filename
      */
     resolveFilename(name: string): string {
@@ -151,18 +167,40 @@ export const itemService = {
         return await join(await appDataDir(), 'data');
     },
 
+    /**
+     * Get the path of the item directory, something like $APPDATA/data/{ID}/
+     * @param id - Id de l'item
+     * @returns $APPDATA/data/{ID}/
+     */
+    async getItemDataPath(id: string): Promise<string> {
+        return await join(await this.getDataPath(), id.toString());
+    },
+
     async filepathFromId(id: string) {
         const filename = this.resolveFilename(id);
-        const dataPath = await this.getDataPath();
+        const dataPath = await this.getItemDataPath(id);
         return await join(dataPath, filename.concat('.json'));
     },
 
+    async readFile(path: string) {
+        return await readBinaryFile(path);
+    },
+
+    /**
+     * Load all items in APPDATA folder and returns them as an array of Item
+     * @return Promise<Item[]>
+     */
     async loadAll(): Promise<Item[]> {
         let items: Array<Item> = [];
-        const entries = await readDir('data', { dir: BaseDirectory.AppData, recursive: true });
+        const entries = await readDir('data', {dir: BaseDirectory.AppData, recursive: true});
         for (const entry of entries) {
-            const item = await readTextFile(entry.path, {dir: BaseDirectory.Data});
-            items.push(JSON.parse(item) as unknown as Item);
+            const jsonPath = await join(entry.path, entry.name + '.json');
+            const rawItem = await readTextFile(jsonPath, {dir: BaseDirectory.Data});
+            const item: Item = JSON.parse(rawItem);
+            if (item.image.length > 0) {
+                item.image = convertFileSrc(await join(entry.path, item.image));
+            }
+            items.push(item);
         }
 
         return items;

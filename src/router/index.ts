@@ -17,7 +17,7 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import('../components/Table.vue'),
     },
     {
-        path: '/view/:id',
+        path: '/view/:id?',
         name: 'item',
         props: true,
         component: () => import('../components/utils/Item.vue'),
@@ -77,6 +77,7 @@ const router = createRouter({
     history: createWebHistory('/'),
     routes,
 });
+
 router.beforeEach((to, from, next) => {
     const main = useStore();
     return next();
