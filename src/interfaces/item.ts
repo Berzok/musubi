@@ -5,8 +5,8 @@ export interface Path {
 
 export interface Item {
     id: string;
+    about: string;
     name: string;
-    filename: string;
     image: string;
     paths: Array<Path>;
     tracked: boolean;

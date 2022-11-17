@@ -31,6 +31,7 @@ pub fn main() {
             directory_content,
             greet,
             is_directory,
+            optimise_image,
             read_file,
             send_directory,
             write_file

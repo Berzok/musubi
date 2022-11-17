@@ -34,7 +34,7 @@
 
 <script>
 import { defineComponent } from "vue";
-import { dialogService } from '@/services/dialogService'
+import { dialogService } from '@/services/dialog/dialogService'
 
 export default defineComponent({
     name: "Send",

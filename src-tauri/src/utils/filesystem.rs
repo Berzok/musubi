@@ -6,10 +6,13 @@ use std::str::FromStr;
 
 use flate2::Compression;
 use flate2::write::GzEncoder;
+use image::imageops::CatmullRom;
+use image::{ImageError, ImageResult};
+use image::io::Reader as ImageReader;
 use reqwest::blocking::Response;
 use tempfile::NamedTempFile;
-use crate::utils::http::send_paquet;
 
+use crate::utils::http::send_paquet;
 use crate::utils::structs::CommandResult;
 
 #[tauri::command]
@@ -52,7 +55,7 @@ pub async fn send_directory(ip: &str, path: &str) -> CommandResult<String> {
     // let file = tarball.keep().unwrap().0;
     let tarball_path = tarball.into_temp_path();
 
-    let mut res= send_paquet(ip, tarball_path).await.unwrap();
+    let mut res = send_paquet(ip, tarball_path).await.unwrap();
     let content = res.text().await.unwrap();
 
     Ok(content)
@@ -85,4 +88,13 @@ fn prepare_tarball(entries: ReadDir) -> NamedTempFile {
         tar.append_file(entry.file_name(), &mut f).unwrap();
     }
     tar.into_inner().unwrap().finish().unwrap()
+}
+
+#[tauri::command]
+pub fn optimise_image(path: &str) -> CommandResult<()> {
+    let img = ImageReader::open(path).unwrap().with_guessed_format().unwrap().decode().unwrap();
+    // let resized_image = img.thumbnail(250, 250);
+    let resized_image = img.resize(500, 500, CatmullRom);
+    resized_image.save(path).unwrap();
+    Ok(())
 }
