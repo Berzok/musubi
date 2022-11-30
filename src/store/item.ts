@@ -1,18 +1,19 @@
 import { acceptHMRUpdate, defineStore } from 'pinia';
-import { authService } from '@/services/authService';
 import { itemService } from '@/services/itemService';
 import { Item } from '@/interfaces/item';
+import { Code } from '@/interfaces/code';
 
-const itemStore = defineStore('item', {
+const useItem = defineStore('item', {
     state: () => ({
         /** @type {number|string|null} */
         id: null,
         /** @type {'all' | 'finished' | 'unfinished'} */
         // type will be automatically inferred to number
-        bob: [],
+        codes: [] as Code[],
         /** @type {Item[]} */
         items: [] as Item[],
-        current: null as unknown as Item
+        current: null as unknown as Item,
+        newImage: ''
     }),
     getters: {
         /**
@@ -21,8 +22,8 @@ const itemStore = defineStore('item', {
          * @returns {boolean|*}
          */
         hasId: (state) => state.id,
-        image: (state) => {
-            return state.current.image;
+        imageHasChanged: (state) => {
+            return state.newImage;
         }
     },
     actions: {
@@ -61,7 +62,7 @@ const itemStore = defineStore('item', {
 
 // make sure to pass the right store definition, `useAuth` in this case.
 if (import.meta.hot) {
-    import.meta.hot.accept(acceptHMRUpdate(itemStore, import.meta.hot))
+    import.meta.hot.accept(acceptHMRUpdate(useItem, import.meta.hot))
 }
 
-export { itemStore };
+export { useItem };

@@ -37,7 +37,7 @@
       <template v-for="i in items" :key="i">
         <router-link :to="{name: 'item', params: {id: i.id}}" class="view-item">
           <div class="card">
-            <img :src="this.imageSrc(i.image)" class="card-img-top cell-image" :alt="i.name"
+            <img :src="this.imageSrc(i)" class="card-img-top cell-image" :alt="i.name"
                  :style="{filter: 'hue-rotate(' + this.randomHue(i.image.length>0) + ')'}">
             <h4 class="card-title">{{ i.name }}</h4>
           </div>
@@ -74,6 +74,8 @@ import plus from '@/assets/plus_sign.png';
 import { defineComponent, PropType, toRaw } from "vue";
 import { Item } from '@/interfaces/item';
 import yarn from '@/assets/ball_of_wool.svg';
+import { itemService } from '@/services/itemService';
+import { convertFileSrc } from '@tauri-apps/api/tauri';
 
 export default defineComponent({
     name: 'Dataview',
@@ -135,7 +137,6 @@ export default defineComponent({
             this.d_first = newValue;
         },
         sortField() {
-            // console.dir(this.items);
         },
     },
     mounted() {
@@ -151,15 +152,15 @@ export default defineComponent({
         }
     },
     methods: {
-        imageSrc(image: string){
-            if(image.length > 0){
-                return image;
-            } else{
+        imageSrc(item: Item) {
+            if (item.image.length > 0) {
+                return convertFileSrc(item.image);
+            } else {
                 return yarn;
             }
         },
         randomHue(exists: boolean) {
-            if(!exists) {
+            if (!exists) {
                 const deg: string = Math.floor(Math.random() * 360).toString();
                 return deg.concat('deg');
             }
@@ -241,6 +242,9 @@ export default defineComponent({
         },
         resetSort() {
             this.sortField = null;
+        },
+        async prepareImage(item: Item) {
+            return await itemService.getImageSrcFromItem(item);
         }
     },
     computed: {

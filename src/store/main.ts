@@ -5,24 +5,25 @@ import { authService } from '@/services/authService';
 const useStore = defineStore('main', {
     state: () => ({
         /** @type {string|null} */
-        code: null,
         /** @type {'all' | 'finished' | 'unfinished'} */
         filter: 'all',
         // type will be automatically inferred to number
         token: '',
+        api: process.env.VITE_API_URL as string,
         loading: false,
         logged: false
     }),
     getters: {
         getToken: (state) => state.token,
-        getCode: (state) => state.code,
         isLoading: (state) => state.loading,
         /**
          * Check if a user is logged;
          * @param state
          * @returns {boolean|*}
          */
-        isLogged: (state) => state.logged
+        isLogged: (state) => state.logged,
+        uploadURL: (state) => state.api.concat('/paquet/upload'),
+        retrieveURL: (state) => state.api.concat('/paquet/retrieve/')
     },
     actions: {
         async login(passcode: string) {

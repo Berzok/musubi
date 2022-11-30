@@ -3,20 +3,12 @@ all(not(debug_assertions), target_os = "windows"),
 windows_subsystem = "windows"
 )]
 
-use tauri::{App, CustomMenuItem, Menu, MenuItem, Submenu};
-use tauri::api::path::app_data_dir;
+use tauri::{CustomMenuItem, Menu, MenuItem, Submenu};
 use tauri::utils::config::BundleConfig;
 use utils::filesystem::*;
-use utils::http::connect_to_ip;
 
 mod utils;
 //use utils;
-
-// Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-#[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
-}
 
 pub fn main() {
     tauri::Builder::default()
@@ -27,13 +19,13 @@ pub fn main() {
         })
         // .manage(AppDataDir(app_happ_data_dir().unwrap()))
         .invoke_handler(tauri::generate_handler![
-            connect_to_ip,
             directory_content,
-            greet,
             is_directory,
             optimise_image,
             read_file,
-            send_directory,
+            retrieve_item,
+            send_item,
+            send_file,
             write_file
         ])
         .menu(init_menu())

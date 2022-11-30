@@ -1,11 +1,21 @@
 import { convertFileSrc, invoke } from '@tauri-apps/api/tauri';
 //TODO: replace by appDataDir with new tauri version
 import { appDataDir, BaseDirectory, basename, join } from '@tauri-apps/api/path';
-import { createDir, exists, readBinaryFile, readDir, readTextFile, writeTextFile } from '@tauri-apps/api/fs';
+import {
+    createDir,
+    exists,
+    readBinaryFile,
+    readDir,
+    readTextFile,
+    removeFile,
+    writeTextFile
+} from '@tauri-apps/api/fs';
 import filenamify from 'filenamify';
 import { Item, Path } from '@/interfaces/item';
 import { useStore } from '@/store/main';
 import axios from 'axios';
+import { useItem } from '@/store/item';
+import { dialogService } from '@/services/dialog/dialogService';
 
 //export const USER_API_ENDPOINT = `${process.env.VUE_APP_API_BASE_URL}/login`;
 export const USER_API_ENDPOINT = `/login`;
@@ -44,69 +54,22 @@ export const itemService = {
         }
     },
 
+    /**
+     * Upload a tarball over HTTP to the backend
+     * @param id
+     */
     async send(id: string) {
         const item: Item = await this.get(id);
-        const files: Array<any> = [];
+        console.log(useStore().uploadURL);
 
-        console.dir(item.paths);
-        /**
-         * Iterating over the saved paths of the Item
-         * @var Path path
-         **/
-        for (const path of item.paths) {
-            console.dir(path);
-            const isDir: boolean = await invoke('is_directory', {path: path.path});
-
-            //If it's a directory
-            if (isDir) {
-                await this.sendDirectory(path);
-
-            } else {
-                //TODO: Send a single file
-            }
-        }
+        return await invoke<string>('send_item', {ip: useStore().uploadURL, name: item.name, itemPaths: item.paths});
     },
 
-    /**
-     * Send the files to the given code endpoint
-     * @param code
-     * @param entries
-     */
-    async sendFiles(code: number, entries: Array<string>) {
-        let fd = new FormData();
-        for (const file of entries) {
-            const content = await invoke<Uint8Array>('read_file', {path: file});
-            const u8 = content;
-            console.dir(u8);
-            await invoke('write_file', {path: await appDataDir() + 'bob.png', content: u8})
-            // const blob = new Blob(content);
-            // fd.append('INPUTNAME', content)
-            console.dir(content);
-            return;
-            await axios.post(`send/${code}`, file)
-                .then(function (response) {
-                    //What is the response status ?
-                    const data = response.data;
-                    console.dir(data);
+    async retrieve(id: string, code: string) {
+        const item: Item = await this.get(id);
+        const retrieveIp: string = useStore().retrieveURL.concat(code);
 
-                    if (data.status === 1) {
-                        return data;
-                    } else {
-                        return false;
-                    }
-                }).catch(() => false);
-        }
-    },
-
-    /**
-     * Send a directory over HTTP.
-     * @param path
-     */
-    async sendDirectory(path: Path) {
-        const code = useStore().getCode;
-        console.dir(code);
-        const file = await invoke<Array<string>>('send_directory', {ip: code, path: path.path});
-        console.dir(file);
+        return await invoke<string>('retrieve_item', {ip: retrieveIp, itemPaths: item.paths});
     },
 
     /**
@@ -126,10 +89,9 @@ export const itemService = {
             await createDir(itemDataPath, {dir: BaseDirectory.Data, recursive: true});
         }
 
-        if (!item.image || item.image.length === 0) {
-            item.image = '';
-        } else {
-            item.image = await this.updateImage(item.image, itemDataPath);
+        if (useItem().imageHasChanged) {
+            console.dir(useItem().newImage);
+            item.image = await this.updateImage(useItem().newImage, item);
         }
 
         // Create the `$APPDIR/users` directory
@@ -138,15 +100,22 @@ export const itemService = {
         return true;
     },
 
-    async updateImage(origin: string, itemPath: string): Promise<string> {
-        const imageName = await basename(origin);
-        const u8 = await invoke<Uint8Array>('read_file', {path: origin});
-        console.dir(u8);
+
+    async updateImage(newImage: string, item: Item): Promise<string> {
+        const itemPath = await this.getItemDataPath(item.id);
+        const imageName = await basename(newImage);
+
+        const u8 = await invoke<Uint8Array>('read_file', {path: newImage});
         const destination = await join(itemPath, imageName);
+
+        const removed = removeFile(await join(itemPath, await basename(item.image)));
+
         await invoke('write_file', {path: destination, content: u8}).then(async () => {
             await invoke('optimise_image', {path: destination});
         });
-        return imageName;
+
+        useItem().newImage = '';
+        return destination;
     },
 
     /**
@@ -197,12 +166,17 @@ export const itemService = {
             const jsonPath = await join(entry.path, entry.name + '.json');
             const rawItem = await readTextFile(jsonPath, {dir: BaseDirectory.Data});
             const item: Item = JSON.parse(rawItem);
-            if (item.image.length > 0) {
-                item.image = convertFileSrc(await join(entry.path, item.image));
-            }
+            // if (item.image.length > 0) {
+            //     item.image = convertFileSrc(item.image);
+            // }
             items.push(item);
         }
 
         return items;
+    },
+
+    async getImageSrcFromItem(item: Item) {
+        const itemDataPath = await this.getItemDataPath(item.id);
+        return convertFileSrc(await join(itemDataPath, item.image));
     }
 };
