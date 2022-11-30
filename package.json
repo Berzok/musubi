@@ -4,11 +4,11 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vue-tsc --noEmit && vite build",
-    "preview": "vite preview",
-    "tauri": "tauri build",
-    "tauri dev": "tauri dev"
+    "vite dev": "vite",
+    "vite build": "vue-tsc --noEmit && vite build",
+    "vite preview": "vite preview",
+    "build": "tauri build",
+    "dev": "tauri dev"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.2.0",
