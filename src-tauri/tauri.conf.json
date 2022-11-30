@@ -1,14 +1,14 @@
 {
     "build": {
-        "beforeDevCommand": "npm run dev",
-        "beforeBuildCommand": "npm run build",
+        "beforeDevCommand": "npm run vite dev",
+        "beforeBuildCommand": "npm run vite build",
         "devPath": "http://localhost:1420",
         "distDir": "../dist",
         "withGlobalTauri": false
     },
     "package": {
         "productName": "musubi",
-        "version": "0.1.0"
+        "version": "0.1.1"
     },
     "tauri": {
         "allowlist": {
