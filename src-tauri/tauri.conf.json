@@ -13,7 +13,8 @@
     "tauri": {
         "allowlist": {
             "dialog": {
-                "open": true
+                "open": true,
+                "message": true
             },
             "fs": {
                 "createDir": true,
@@ -21,6 +22,7 @@
                 "readDir": true,
                 "writeFile": true,
                 "readFile": true,
+                "removeFile": true,
                 "scope": ["$APPDATA/*"]
             },
             "path": {

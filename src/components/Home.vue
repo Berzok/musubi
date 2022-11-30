@@ -53,9 +53,7 @@ export default defineComponent({
             console.dir(rustponse);
         }
     },
-    mounted() {
-        console.dir('oui le Home');
-    }
+    mounted() {}
 });
 </script>
 

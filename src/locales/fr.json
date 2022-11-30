@@ -31,7 +31,8 @@
         "actions": {
             "added": "{label} ajouté.",
             "saved": "Sauvegarde effectuée.",
-            "delete": "Supprimer"
+            "delete": "Supprimer",
+            "retrieved": "Téléchargement fini"
         }
     },
     "menu": {
@@ -43,6 +44,7 @@
     },
     "add": "Ajouter",
     "cancel": "Annuler",
+    "close": "Fermer",
     "send_file": "Envoyer un fichier",
     "send_folder": "Envoyer un dossier"
 }

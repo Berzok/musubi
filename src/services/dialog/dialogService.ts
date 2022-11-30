@@ -1,5 +1,5 @@
-import { DialogFilter, open, OpenDialogOptions } from '@tauri-apps/api/dialog';
-import { appDataDir, dirname } from '@tauri-apps/api/path';
+import { DialogFilter, message, open, OpenDialogOptions } from '@tauri-apps/api/dialog';
+import { appDataDir, basename, dirname } from '@tauri-apps/api/path';
 import { Path } from '@/interfaces/item';
 import { Filter } from '@/enums/filter';
 
@@ -27,7 +27,7 @@ export const dialogService = {
             // user selected multiple directories
             for (const d of selected) {
                 paths.push({
-                    id: await dirname(d),
+                    id: await basename(d),
                     path: d
                 });
             }
@@ -45,28 +45,39 @@ export const dialogService = {
     /**
      * Open a selection dialog for a single file
      */
-    async selectFile(filters: number[] = []): Promise<string|null> {
+    async selectFile(filters: number[] = []): Promise<string> {
         // Open a selection dialog for image files
         let options: OpenDialogOptions = {
+            directory: false,
             multiple: false
         };
         options.filters = this.resolveFilters(filters);
 
-        const selected = await this.openDialog(options);
-        if (selected === null) {
-            // user cancelled the selection
-        } else {
-            // user selected a single file
-        }
-
-        console.dir(selected);
-        return selected as string|null;
+        return await this.openDialog(options) as string ?? '';
     },
 
-    async openDialog(options: OpenDialogOptions | undefined): Promise<string|string[]|null> {
+    /**
+     * Display a dialog with a message
+     * @param title
+     * @param content
+     * @param type
+     */
+    async showMessage(title: string, content: string, type = undefined){
+        await message(content, {
+            title: title,
+            type: type ?? 'info'
+        });
+    },
+
+    async openDialog(options: OpenDialogOptions | undefined): Promise<string | string[] | null> {
         return await open(options);
     },
 
+
+    /**
+     * Prepare the dialog's options
+     * @param filters
+     */
     resolveFilters(filters: number[]) {
         let resolved: DialogFilter[] = [];
         for (const f of filters) {

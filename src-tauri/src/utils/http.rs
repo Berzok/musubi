@@ -3,42 +3,18 @@ all(not(debug_assertions), target_os = "windows"),
 windows_subsystem = "windows"
 )]
 
-use std::fs::{read};
-use std::io::{BufReader, Read};
-use std::path::PathBuf;
-use reqwest::{Body, Error};
 use reqwest::Client;
-use reqwest::Response;
 use reqwest::multipart;
-use tempfile::TempPath;
-use tide::{Request, Server};
-use tide::prelude::*;
-use tokio::fs::File;
 use tokio_util::codec::{BytesCodec, FramedRead};
 
-// Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-#[tauri::command]
-pub fn login(passcode: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", passcode)
-}
+use tempfile::TempPath;
 
-#[tauri::command]
-pub fn connect_to_ip(ip: &str) -> String {
-    format!("This is working")
-}
+pub async fn send_paquet(ip: &str, name: &str, paquet_path: TempPath) -> Result<reqwest::Response, Box<dyn std::error::Error>> {
+    let file = tokio::fs::File::open(&paquet_path).await?;
 
-#[derive(Debug, Deserialize)]
-struct Item {
-    name: String,
-    legs: u16,
-}
-
-pub async fn send_paquet(ip: &str, paquet_path: TempPath) -> Result<Response, Box<dyn std::error::Error>> {
-    let file = File::open(&paquet_path).await?;
-
-    // read file body stream
+    //read file body stream
     let stream = FramedRead::new(file, BytesCodec::new());
-    let file_body = Body::wrap_stream(stream);
+    let file_body = reqwest::Body::wrap_stream(stream);
 
     //make form part of file
     let part = multipart::Part::stream(file_body)
@@ -46,7 +22,7 @@ pub async fn send_paquet(ip: &str, paquet_path: TempPath) -> Result<Response, Bo
         .mime_str("application/octet-stream")?;
 
     let form = multipart::Form::new()
-        .text("name", "bob")
+        .text("name", name.to_owned())
         .part("data", part);
 
     let client = Client::new();
@@ -58,15 +34,29 @@ pub async fn send_paquet(ip: &str, paquet_path: TempPath) -> Result<Response, Bo
     Ok(res)
 }
 
-#[tauri::command]
-pub async fn start() -> tide::Result<()> {
-    let mut app: Server<()> = tide::new();
-    app.at("/receive").put(receive_files);
-    app.listen("127.0.0.1:7878").await?;
-    Ok(())
-}
+pub fn retrieve_paquet(ip: &str) -> Result<ureq::Response, Box<dyn std::error::Error>> {
+    let response = ureq::get(ip).call()?;
 
-async fn receive_files(mut req: Request<()>) -> tide::Result {
-    let Item { name, legs } = req.body_json().await?;
-    Ok(format!("Hello, {}! I've put in an order for {} shoes", name, legs).into())
+    Ok(response)
+
+    /*
+    let (mut dest) = {
+        let fname = response
+            .url()
+            .path_segments()
+            .and_then(|segments| segments.last())
+            .and_then(|name| if name.is_empty() { None } else { Some(name) })
+            .unwrap_or("tmp.bin");
+
+        println!("file to download: '{}'", fname);
+        let fname = tmp_dir.path().join(fname);
+        println!("will be located under: '{:?}'", fname);
+        (fname, std::fs::File::create(&fname)?)
+    };
+     */
+
+    // let content =  response.bytes().await?;
+    // Ok(content.to_vec())
+    //copy(&mut content.as_bytes(), &mut dest)?;
+
 }

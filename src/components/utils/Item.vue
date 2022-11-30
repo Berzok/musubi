@@ -1,6 +1,6 @@
 <template>
 
-  <form class="item-details" @submit.prevent="this.save()">
+  <div class="item-details">
 
     <div class="image-container">
       <img :src="this.imageSrc" alt="Image" class="item-image" @click="uploadImage()"
@@ -12,13 +12,13 @@
           <span class="fa-solid fa-upload"></span>
           {{ this.$t('menu.send') }}
         </button>
-        <button @click="this.receive()" class="btn btn-info col-5 ms-1 mb-2">
+        <button @click="this.openCodeDialog()" class="btn btn-info col-5 ms-1 mb-2">
           <span class="fa-solid fa-download"></span>
           {{ this.$t('menu.receive') }}
         </button>
 
         <div class="d-flex justify-content-center col-12">
-          <button class="btn btn-success ms-1">
+          <button class="btn btn-success ms-1" @click="this.save()">
             <span class="fa-solid fa-save"></span>
             {{ this.$t('form.submit') }}
           </button>
@@ -61,10 +61,10 @@
       <div class="form-row flex-column">
         <label for="path" class="form-label w-100">{{ this.$t('item.path', 2) }}</label>
 
-        <div class="d-flex">
+        <div class="d-flex flex-column">
           <template v-for="(p, i) in this.item.paths" :key="p">
             <div class="d-flex w-100 justify-content-between">
-              <span class="form-control item-path" :data-name="p.id" @click="this.selectPath()">
+              <span class="form-control item-path" @click="this.selectPath()" :title="p.path">
                 {{ p.path }}
               </span>
               <button class="btn btn-delete col-2" @click="this.removePath(p.id)">
@@ -74,29 +74,42 @@
           </template>
 
         </div>
-        <button class="btn btn-outline-info" @click="this.addPath()">
-          <span class="fa-solid fa-plus"></span>
-          {{ this.$t('add') }}
-        </button>
+
+        <div>
+          <button class="btn btn-outline-info" @click="this.addPath(true)">
+            <span class="fa-solid fa-plus"></span>
+            {{ this.$t('add') }} D
+          </button>
+          <button class="btn btn-outline-light" @click="this.addPath()">
+            <span class="fa-solid fa-plus"></span>
+            {{ this.$t('add') }} F
+          </button>
+        </div>
       </div>
     </div>
 
+    <Teleport to="body">
+      <!-- use the modal component, pass in the prop -->
+      <Dialog v-show="showModal" :header="false" :content="this.code" @close="showModal = false">
+      </Dialog>
+    </Teleport>
+
     <dialog id="sendDialog">
-      <form method="dialog" class="form-control bg-danger" @submit="this.updateDestinationIP()">
+      <form method="dialog" class="form-control bg-danger" @submit.prevent="this.retrieveItem()">
         <label for="code" class="form-label">IP:</label>
         <input id="code" v-model="this.code" type="text" class="form-control">
         <button class="btn btn-warning" value="cancel">Cancel</button>
-        <button class="btn btn-success" type="submit">Confirm</button>
+        <button class="btn btn-success" type="submit">{{ this.$t('form.submit') }}</button>
       </form>
     </dialog>
 
-  </form>
+  </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
 import { useToast } from "vue-toast-notification";
-import { itemStore } from "@/store/item";
+import { useItem } from "@/store/item";
 import { useStore } from "@/store/main";
 import { dialogService } from "@/services/dialog/dialogService";
 import { itemService } from "@/services/itemService";
@@ -131,68 +144,86 @@ export default defineComponent({
             about: null,
             tracked: false,
             synchronised: false,
-            code: null
+            code: '',
+            showModal: false,
         };
     },
     setup(props) {
         // Get toast interface
         const toast = useToast();
         const mainStore = useStore();
-        const item = itemStore().getById(props.id);
+        const item = useItem().getById(props.id);
         return {toast, item, mainStore};
     },
     mounted() {
         //If we have an id, this means the item already exists (ie, we are not creating a new one)
         if (this.id) {
-            this.item = itemStore().current = itemStore().getById(this.id);
+            this.item = useItem().current = useItem().getById(this.id);
         }
 
         //If no image is configured, we use a coloured version of our yarn ball
         if (this.item.image.length > 0) {
-            this.imageSrc = itemStore().current.image;
+            this.imageSrc = convertFileSrc(this.item.image);
+            // itemService.getImageSrcFromItem(this.item).then((p) => {
+            //     this.imageSrc = p;
+            // });
         } else {
             this.imageSrc = yarn;
         }
-        console.dir(this.item);
-        console.dir(isAbsolute(this.item.image));
-        console.dir(this.item.name);
     },
     computed: {
         randomHue() {
-            if (this.item.image.length>0) {
+            if (this.item.image.length > 0) {
                 return 0;
             }
             const deg: string = Math.floor(Math.random() * 360).toString();
             return deg.concat('deg');
         },
-
     },
     methods: {
-        updateDestinationIP() {
-            this.mainStore.code = this.code;
-            itemService.send(this.item.id);
-        },
-        async addPath() {
-            const p = await dialogService.selectDirectory();
+        async addPath(directory = false) {
+            let p;
+            if (directory) {
+                p = await dialogService.selectDirectory();
+            } else {
+                p = await dialogService.selectFile() as string;
+            }
             if (p) {
                 if (Array.isArray(p)) {
                     for (const single of p) {
                         this.item.paths.push(single);
                     }
                 } else {
-                    this.item.paths.push(p);
+                    const directory = await dirname(p as string);
+                    console.dir(directory);
+                    this.item.paths.push({
+                        id: await basename(directory),
+                        path: p as string
+                    });
                 }
                 this.toast.success(this.$t('item.actions.added', {label: this.$t('item.path')}))
             }
+        },
+        closeDialog(){
+            const m = document.getElementById('sendDialog') as HTMLDialogElement;
+            m.close();
+        },
+        openCodeDialog(){
+            const m = document.getElementById('sendDialog') as HTMLDialogElement;
+            m.showModal();
         },
         selectPath() {
             dialogService.selectDirectory();
         },
         send() {
-            const code = 72;
-            const m = document.getElementById('sendDialog') as HTMLDialogElement;
-            m.showModal();
-            //itemService.send(code, this.item.id);
+            // const code = 72;
+            // const m = document.getElementById('sendDialog') as HTMLDialogElement;
+            // m.showModal();
+            itemService.send(this.item.id).then((code) => {
+                console.dir(code);
+                this.code = code;
+                this.showModal = true;
+            });
         },
         removePath(id: string) {
             for (const p of this.item.paths) {
@@ -204,14 +235,17 @@ export default defineComponent({
             }
             console.dir(this.item);
         },
-        receive() {
-            //invoke()
-        },
-        syncWithStore() {
-            itemStore().current = this.item;
+        retrieveItem() {
+            const m = document.getElementById('sendDialog') as HTMLDialogElement;
+            m.close();
+            itemService.retrieve(this.item.id, this.code).then((r) => {
+                console.dir(r);
+                this.toast.success(this.$t('item.actions.retrieved') + ' ' + r);
+            });
         },
         async save() {
-            let finished = itemStore().save(this.item);
+            console.dir(this.item);
+            let finished = useItem().save(this.item);
             if (await finished) {
                 this.toast.success(this.$t('item.actions.saved'));
                 return true;
@@ -219,9 +253,11 @@ export default defineComponent({
         },
         async uploadImage() {
             // document.getElementById('image_upload').click();
+
+            //Get the absolute path to the new image
             const image = await dialogService.selectFile();
             if (image) {
-                this.item.image = image;
+                useItem().newImage = image;
                 this.imageSrc = convertFileSrc(image);
             }
         },
@@ -266,6 +302,8 @@ export default defineComponent({
 }
 
 .item-path {
+  overflow: hidden;
+  text-overflow: ellipsis;
   background-color: transparent;
   border: 2px solid #646cff;
   border-radius: 12px;
@@ -273,6 +311,7 @@ export default defineComponent({
   text-align: start;
   margin-bottom: 0.5rem;
   width: 75%;
+  font-size: 14px;
   min-width: 17rem;
 }
 
