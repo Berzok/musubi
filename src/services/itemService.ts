@@ -17,7 +17,6 @@ import axios from 'axios';
 import { useItem } from '@/store/item';
 import { dialogService } from '@/services/dialog/dialogService';
 
-//export const USER_API_ENDPOINT = `${process.env.VUE_APP_API_BASE_URL}/login`;
 export const USER_API_ENDPOINT = `/login`;
 
 export const itemService = {
